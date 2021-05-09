@@ -100,37 +100,6 @@ namespace SF10 {
         };
     }
     namespace Input {
-        struct KeyboardInput {
-            bool modifiers[6];
-            bool keys[GLFW_KEY_LAST];
-            KeyboardInput() {
-                for (size_t i = 0; i < GLFW_KEY_LAST; ++i) {
-                    this->keys[i] = false;
-                }
-                for (size_t i = 0; i < 6; ++i) {
-                    this->modifiers[i] = false;
-                }
-            }
-            //wordy as hell, but works dynamically, cannot complain
-            void setMods(int mods) {
-                this->modifiers[Keyboard::Modifiers::SHIFT] = (mods & GLFW_MOD_SHIFT) != 0x0000;
-                this->modifiers[Keyboard::Modifiers::ALT] = (mods & GLFW_MOD_ALT) != 0x0000;
-                this->modifiers[Keyboard::Modifiers::CTRL] = (mods & GLFW_MOD_CONTROL) != 0x0000;
-                this->modifiers[Keyboard::Modifiers::SUPER] = (mods & GLFW_MOD_SUPER) != 0x0000;
-                this->modifiers[Keyboard::Modifiers::CAPSLOCK] = (mods & GLFW_MOD_CAPS_LOCK) != 0x0000;
-                this->modifiers[Keyboard::Modifiers::NUMLOCK] = (mods & GLFW_MOD_NUM_LOCK) != 0x0000;
-            }
-        };
-        struct MouseInput {
-            Mouse::Button buttons[GLFW_MOUSE_BUTTON_LAST];
-            vec2 mousePos;
-            MouseInput() {
-                for (size_t i = 0; i < GLFW_MOUSE_BUTTON_LAST; ++i) {
-                    this->buttons[i] = Mouse::Button(i, vec2(0.0), true);
-                }
-                this->mousePos = vec2(0.0);
-            }
-        };
         namespace Keyboard {
             enum Modifiers {
                 SHIFT, CTRL, ALT, CAPSLOCK, NUMLOCK, SUPER
@@ -140,7 +109,8 @@ namespace SF10 {
             enum Modes {
                 NORMAL, HIDDEN, POINTERLOCKED
             };
-            struct Button {
+            class Button {
+            public:
                 bool wasHandled;
                 vec2 position;
                 int button;
@@ -165,6 +135,39 @@ namespace SF10 {
                     }
                 }
             };
+        };
+        struct KeyboardInput {
+            bool modifiers[6];
+            bool keys[GLFW_KEY_LAST];
+            KeyboardInput() {
+                for (size_t i = 0; i < GLFW_KEY_LAST; ++i) {
+                    this->keys[i] = false;
+                }
+                for (size_t i = 0; i < 6; ++i) {
+                    this->modifiers[i] = false;
+                }
+            }
+            //wordy as hell, but works dynamically, cannot complain
+            void setMods(int mods) {
+                this->modifiers[Keyboard::Modifiers::SHIFT] = (mods & GLFW_MOD_SHIFT) != 0x0000;
+                this->modifiers[Keyboard::Modifiers::ALT] = (mods & GLFW_MOD_ALT) != 0x0000;
+                this->modifiers[Keyboard::Modifiers::CTRL] = (mods & GLFW_MOD_CONTROL) != 0x0000;
+                this->modifiers[Keyboard::Modifiers::SUPER] = (mods & GLFW_MOD_SUPER) != 0x0000;
+                this->modifiers[Keyboard::Modifiers::CAPSLOCK] = (mods & GLFW_MOD_CAPS_LOCK) != 0x0000;
+                this->modifiers[Keyboard::Modifiers::NUMLOCK] = (mods & GLFW_MOD_NUM_LOCK) != 0x0000;
+            }
+        };
+        using mouseButton = SF10::Input::Mouse::Button;
+        class MouseInput {
+        public:
+            MouseInput() {
+                for (size_t i = 0; i < GLFW_MOUSE_BUTTON_LAST; ++i) {
+                    this->buttons[i] = Mouse::Button(i, vec2(0.0), true, GLFW_RELEASE);
+                }
+                this->mousePos = vec2(0.0);
+            }
+            mouseButton buttons[7];
+            vec2 mousePos;
         };
         namespace Gamepad {
 
@@ -258,7 +261,7 @@ namespace SF10 {
                 initVulkanRaytraced();
                 break;
             }
-            //mainLoop(); //Raytracing causes nullpointer exceptions with these two, TODO: either segment or error-proof
+            mainLoop(); //Raytracing causes nullpointer exceptions with these two, TODO: either segment or error-proof
             cleanup();
         }
         void draw() {
@@ -415,7 +418,7 @@ namespace SF10 {
         double frame = 0;
         std::chrono::steady_clock::time_point lastTimeLogged = std::chrono::high_resolution_clock::now();
         double frameTime = 0;
-        const char* windowTitle;
+        const char* windowTitle = "SturdyEngine";
 
 
         //custom engine code
@@ -441,16 +444,16 @@ namespace SF10 {
 
         static void privateKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
             SturdyEngine* app = reinterpret_cast<SturdyEngine*>(glfwGetWindowUserPointer(window));
-            app->keyboard.setMods(mods);
+            //app->keyboard.setMods(mods);
             switch (action) {
-                case GLFW_PRESS:
-                    app->keyboard.keys[key] = true;
+            case GLFW_PRESS:
+                app->keyboard.keys[key] = true;
                 break;
-                case GLFW_RELEASE:
-                    app->keyboard.keys[key] = false;
+            case GLFW_RELEASE:
+                app->keyboard.keys[key] = false;
                 break;
-                case GLFW_REPEAT:
-                    app->keyboard.keys[key] = true;
+            case GLFW_REPEAT:
+                app->keyboard.keys[key] = true;
                 break;
             }
             app->onKey(key, scancode, action, mods);
@@ -481,7 +484,7 @@ namespace SF10 {
             app->framebufferResized = true;
         }
 
-        
+
 
         void initVulkanRasterized() {
             //default extensions logic

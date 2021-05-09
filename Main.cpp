@@ -7,7 +7,7 @@
 class Application : public SF10::SturdyEngine {
     public:
         void setup() {
-            this->renderer = SF10::renderTypes::Raytraced;
+            this->renderer = SF10::renderTypes::Rasterized;
         }
         void update() {
             draw();

@@ -24,7 +24,8 @@ find_package(glfw3 3.3 REQUIRED)
 find_package(GLM CONFIG REQUIRED)
 find_package(OpenXR CONFIG REQUIRED)
 file(COPY shaders/ DESTINATION shaders/)
-
+file(COPY shaders/ DESTINATION Debug/shaders/)
+file(COPY shaders/ DESTINATION Release/shaders/)
 if(Vulkan_FOUND)
 	target_include_directories(${project_name} PRIVATE Vulkan::Vulkan)
 	target_link_libraries(${project_name} Vulkan::Vulkan)
@@ -38,6 +39,3 @@ endif()
 if (OpenXR_FOUND)
     target_link_libraries(${project_name} OpenXR::openxr_loader)
 endif()
-
-
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${project_name})
