@@ -39,3 +39,5 @@ endif()
 if (OpenXR_FOUND)
     target_link_libraries(${project_name} OpenXR::openxr_loader)
 endif()
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${project_name})

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <vector>
 #include <cstring>
+#include <string>
 #include <cstdlib>
 #include <cstdint>
 #include <optional>
@@ -15,7 +16,6 @@
 #include <glm/glm.hpp>
 #include <memory> //does java like gc for us... todo: use this in games
 #include <OpenXR/openxr.h> //TODO: actually use this
-
 /*
 TODO list:
 - OpenXR Vulkan Pipelines
@@ -33,6 +33,7 @@ TODO list:
 - add engine-wide support for compute shaders
 - add engine-wide support for hdr10
 - basic button api
+- Code Generators for scenes to improve load times
 */
 using vec2 = glm::vec2;
 using vec3 = glm::vec3;
@@ -200,6 +201,8 @@ namespace SF10 {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
     };
+
+
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
 #else
@@ -353,7 +356,7 @@ namespace SF10 {
         }
         //use this in update or you might have a bad time, 
         void setCursorMode(std::optional<GLFWwindow*> window, int mode) {
-            if (window) {
+            if (windowExists) {
                 switch (mode) {
                 case Input::Mouse::POINTERLOCKED:
                     glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -372,13 +375,14 @@ namespace SF10 {
                 return;
             }
         }
-        void setWindowTitle(char title) {
-            this->windowTitle = &title;
+        void setWindowTitle(const char* title) {
+            this->windowTitle = title;
             std::optional<GLFWwindow*> w = this->window;
             if (w) {
                 glfwSetWindowTitle(*w, this->windowTitle);
             }
         }
+
         renderTypes renderer;
         Input::KeyboardInput keyboard;
         Input::MouseInput mouse;
@@ -419,7 +423,7 @@ namespace SF10 {
         std::chrono::steady_clock::time_point lastTimeLogged = std::chrono::high_resolution_clock::now();
         double frameTime = 0;
         const char* windowTitle = "SturdyEngine";
-
+        bool windowExists = false;
 
         //custom engine code
         std::vector<const char*> requiredExtensions;
@@ -438,6 +442,7 @@ namespace SF10 {
             glfwSetCharCallback(window, privateCharCallback);
             glfwSetCursorPosCallback(window, privateCursorPosCallback);
             glfwSetMouseButtonCallback(window, privateClickCallback);
+            this->windowExists = true;
             //this call may look stupid, but there was a alternate case where window is not initialized, so this needs to be called to actually *set* the cursor how we did during setup...
             setCursorMode(window, this->startingCursorMode);
         }
