@@ -7,13 +7,14 @@ class Application : public SF10::SturdyEngine {
         void setup() {
             this->renderer = SF10::renderTypes::Rasterized;
             setCursorMode(this->getWindow(), SF10::Input::Mouse::NORMAL);
+            setFullscreen(false);
+            setFullscreen(false);
+            setFullscreen(true);
+            setFullscreen(true);
+            setHDR10Support(true);
         }
         void update() {
             draw();
-            std::string str = "SturdyEngine FPS: ";
-            str += std::to_string(getFrameRate());
-            const char* title = str.c_str();
-            setWindowTitle(title);
         }
         void clean() {
             std::cout << "Clean Called, Application closing" << "\n";
@@ -26,7 +27,7 @@ class Application : public SF10::SturdyEngine {
         }
 
 
-        //handles text input as expected of a good text box, except for backspace
+        //handles text input as expected of a good text box, except for backspace, enter, delete, tab. these will need the onKey listener unfortunately
         virtual void onChar(char key) {
             std::cout << "Char: " << key << std::endl;
         }

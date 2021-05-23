@@ -23,7 +23,6 @@ TODO list:
 - Shader Buffers
 - Multi-window Support
 - Camera API
-- Thread-safe rendering
 - Default Shaders(2D/3D, RTX, Mesh Shader, VR)
 - Basic effect shaders
 - Render Pipeline Hotswap(Swap between 2d, 3d, and all supported pipelines in the update function
@@ -34,6 +33,7 @@ TODO list:
 - add engine-wide support for hdr10
 - basic button api
 - Code Generators for scenes to improve load times
+- Focus listeners(window defocus and focus)
 */
 using vec2 = glm::vec2;
 using vec3 = glm::vec3;
@@ -137,6 +137,7 @@ namespace SF10 {
                 }
             };
         };
+        
         struct KeyboardInput {
             bool modifiers[6];
             bool keys[GLFW_KEY_LAST];
@@ -253,8 +254,8 @@ namespace SF10 {
     public:
         void run() {
             bool rtCapable = false;
-            this->setup();
             initWindow();
+            this->setup();
             switch (renderer) {
             case renderTypes::Rasterized:
                 initVulkanRasterized();
@@ -378,17 +379,113 @@ namespace SF10 {
         void setWindowTitle(const char* title) {
             this->windowTitle = title;
             std::optional<GLFWwindow*> w = this->window;
+            if (!customWindowName) {
+                customWindowName = true;
+            }
             if (w) {
                 glfwSetWindowTitle(*w, this->windowTitle);
             }
         }
-
+        //exists for the explicit purpose of figuring out whether or not the window is fullscreen, more like a double check internally but is useful for developers to test for fullscreen
+        bool isWindowFullscren() {
+            return (glfwGetWindowMonitor(this->getWindow()) != NULL);
+        }
+        void setFullscreen(bool tf, int monitor = NULL) {
+            if (fullscreen == tf || (isWindowFullscren() == tf)) {
+                std::cout << "catch 1 triggered" << std::endl;
+                return;
+            }
+            fullscreen = tf;
+            if (tf == true) {
+                int x, y;
+                glfwGetWindowPos(getWindow(), &x, &y);
+                int id = 0;
+                for (size_t i = 0; i < monitors.size(); ++i) {
+                    vec2 pos = vec2(x, y);
+                    MonitorDescriptor monitor = monitors[i];
+                    if (monitor.isPointInMonitor(pos)) {
+                        id = i;
+                        break;
+                    }
+                }
+                glfwSetWindowMonitor(this->getWindow(), monitors[id].obj, monitors[id].bounds.x, monitors[id].bounds.y, monitors[id].bounds.z, monitors[id].bounds.w, getMonitorMaxRefreshRate(monitors[id].obj));
+            }
+            else {
+                GLFWmonitor* mon = glfwGetWindowMonitor(window);
+                if (mon == NULL) {
+                    return; // is just here in case someone decides to use glfw directly in-engine, this will prevent crashes
+                }
+                int x, y, width, height;
+                glfwGetMonitorWorkarea(mon, &x, &y, &width, &height);
+                glfwSetWindowMonitor(this->getWindow(), nullptr, x + ((double)width / 2.0 - (windowedSize.x / 2.0)), y + ((double)height / 2.0 - (windowedSize.y/2.0)), windowedSize.x, windowedSize.y, GLFW_DONT_CARE);
+            }
+        }
+        int getMonitorMaxRefreshRate(GLFWmonitor* mon) {
+            const GLFWvidmode* currentMode = glfwGetVideoMode(mon);
+            return currentMode->refreshRate;
+        }
+        void setWindowPosition(vec2 pos) {
+            glfwSetWindowPos(this->getWindow(), pos.x, pos.y);
+        }
+        vec2 getWindowPosition() {
+            int x, y;
+            glfwGetWindowPos(this->getWindow(), &x, &y);
+            vec2 pos(x, y);
+            return pos;
+        }
+        void setWindowDecorated(bool enable) {
+            if (enable == true) {
+                glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+            }
+            else {
+                glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            }
+        }
+        int getCurrentWindowMonitorID() {
+            int x, y;
+            glfwGetWindowPos(getWindow(), &x, &y);
+            int id = 0;
+            for (size_t i = 0; i < monitors.size(); ++i) {
+                vec2 pos = vec2(x, y);
+                MonitorDescriptor monitor = monitors[i];
+                if (monitor.isPointInMonitor(pos)) {
+                    id = i;
+                    break;
+                }
+            }
+            return id;
+        }
+        bool checkHDR10Support() {
+            const GLFWvidmode* currentMode = glfwGetVideoMode(monitors[getCurrentWindowMonitorID()].obj);
+            if (currentMode->blueBits > 8 && currentMode->redBits > 8 && currentMode->greenBits > 8) {
+                return true;
+            }
+            return false;
+        }
+        void setHDR10Support(bool enable) {
+            if (enable == true && checkHDR10Support()) {
+                glfwWindowHint(GL_RED_BITS, 10);
+                glfwWindowHint(GL_GREEN_BITS, 10);
+                glfwWindowHint(GL_BLUE_BITS, 10);
+                glfwWindowHint(GL_ALPHA_BITS, 2);
+            } else {
+                if (enable == true) {
+                    std::cout << "SturdyEngine could not enable HDR, either your monitor is not setup for HDR, or it is not supported at all." << std::endl;
+                }
+                glfwWindowHint(GLFW_RED_BITS, 8);
+                glfwWindowHint(GLFW_GREEN_BITS, 8);
+                glfwWindowHint(GLFW_BLUE_BITS, 8);
+                glfwWindowHint(GL_ALPHA_BITS, 2);
+            } 
+        }
         renderTypes renderer;
         Input::KeyboardInput keyboard;
         Input::MouseInput mouse;
         //Anything below this point is heavy on API calls and is recommended for seasoned engine devs only, you have been warned, any and all modifications to this file do not void the license terms, as I do need to make money
     private:
         GLFWwindow* window;
+        vec2 windowedSize;
+        bool fullscreen;
         std::vector<VkBuffer> buffers;
         VkInstance instance;
         VkDebugUtilsMessengerEXT debugMessenger;
@@ -424,16 +521,59 @@ namespace SF10 {
         double frameTime = 0;
         const char* windowTitle = "SturdyEngine";
         bool windowExists = false;
-
+        bool customWindowName = false;
+        bool windowFullscreen = false;
         //custom engine code
         std::vector<const char*> requiredExtensions;
+        struct MonitorDescriptor {
+            glm::vec4 bounds;
+            GLFWmonitor* obj;
+            const char* name;
+            MonitorDescriptor(glm::vec4 bounds, GLFWmonitor* mon) {
+                this->bounds = bounds;
+                this->obj = mon;
+                const char* n = glfwGetMonitorName(mon);
+                this->name = n;
+            }
+            bool isPointInMonitor(glm::vec2 pos) {
+                int x2 = bounds.x + bounds.z;
+                int y2 = bounds.y + bounds.w;
+                if (pos.x >= bounds.x && (pos.y >= bounds.y && (pos.x <= x2 && (pos.y <= y2)))) {
+                    return true;
+                }
+                return false;
+            }
+            MonitorDescriptor() {
+                this->bounds = glm::vec4(0);
+                this->obj = NULL;
+            }
+        };
+        std::vector<MonitorDescriptor> monitors = {};
 
         void initWindow() {
             glfwInit();
+            //Init monitors list
+            int count;
+            GLFWmonitor** mons = glfwGetMonitors(&count);
+            monitors.resize(count);
+            monitors.clear();
 
+            for (size_t i = 0; i < count; ++i) {
+                int xpos, ypos, width, height;
+                glfwGetMonitorWorkarea(mons[i], &xpos, &ypos, &width, &height);
+                glfwSetMonitorUserPointer(mons[i], this);
+                monitors.push_back(MonitorDescriptor(glm::vec4((double)xpos, (double)ypos, (double)width, (double)height), mons[i]));
+                std::cout << "found monitor " << monitors[i].name << ", ID: " << i << " at: (X: " << xpos << ", Y: " << ypos << ", Width: " << width << ", Height: " << height << ")" << std::endl;
+
+            }
+
+            //end monitor list init
+
+            glfwSetMonitorCallback(monitor_callback);
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
             window = glfwCreateWindow(WIDTH, HEIGHT, this->windowTitle, nullptr, nullptr);
+            windowedSize = vec2(WIDTH, HEIGHT);
             glfwSetWindowUserPointer(window, this);
             glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
             if (glfwRawMouseMotionSupported())
@@ -445,6 +585,22 @@ namespace SF10 {
             this->windowExists = true;
             //this call may look stupid, but there was a alternate case where window is not initialized, so this needs to be called to actually *set* the cursor how we did during setup...
             setCursorMode(window, this->startingCursorMode);
+        }
+
+        static void monitor_callback(GLFWmonitor* monitor, int event)
+        {
+            SturdyEngine* a = reinterpret_cast<SturdyEngine*>(glfwGetMonitorUserPointer(monitor));
+            int count;
+            GLFWmonitor** mons = glfwGetMonitors(&count);
+            a->monitors.resize(count);
+            a->monitors.clear();
+
+            for (size_t i = 0; i < count; ++i) {
+                int xpos, ypos, width, height;
+                SturdyEngine* app = reinterpret_cast<SturdyEngine*>(glfwGetMonitorUserPointer(mons[i]));
+                glfwGetMonitorWorkarea(mons[i], &xpos, &ypos, &width, &height);
+                app->monitors.push_back(MonitorDescriptor(glm::vec4((double)xpos, (double)ypos, (double)width, (double)height), mons[i]));
+            }
         }
 
         static void privateKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -487,6 +643,9 @@ namespace SF10 {
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
             auto app = reinterpret_cast<SturdyEngine*>(glfwGetWindowUserPointer(window));
             app->framebufferResized = true;
+            if (!app->fullscreen) {
+                app->windowedSize = vec2(width, height);
+            }
         }
 
 
@@ -525,6 +684,28 @@ namespace SF10 {
             while (!glfwWindowShouldClose(window)) {
                 glfwPollEvents();
                 this->update();
+                if (customWindowName == false) {
+                    std::string str = "SturdyEngine, Frame Time: ";
+                    double time = getFrameTime();
+                    if (time < 0.0000005) {
+                        str += std::to_string(time * 1000000000.0);
+                        str += "ns";
+                    }
+                    else if (time < 0.5) {
+                        str += std::to_string(time * 1000.0);
+                        str += "ms";
+                    }
+                    else {
+                        str += std::to_string(time);
+                        str += "s";
+                    }
+                    const char* title = str.c_str();
+                    this->windowTitle = title;
+                    std::optional<GLFWwindow*> w = this->window;
+                    if (w) {
+                        glfwSetWindowTitle(*w, this->windowTitle);
+                    }
+                }
             }
 
             vkDeviceWaitIdle(device);
@@ -615,10 +796,16 @@ namespace SF10 {
         }
 
         void createInstance(renderTypes type = renderTypes::Rasterized) {
+            std::vector<const char*> layers;
             if (enableValidationLayers && !checkValidationLayerSupport()) {
                 throw std::runtime_error("validation layers requested, but not available!");
+                for (auto layer : validationLayers) {
+                    layers.push_back(layer);
+                }
             }
-
+            else {
+                std::cout << "Not all layers were found" << std::endl;
+            }
             VkApplicationInfo appInfo{};
             appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
             appInfo.pApplicationName = "SturdyEngine Application";
@@ -637,8 +824,8 @@ namespace SF10 {
 
             VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
             if (enableValidationLayers) {
-                createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-                createInfo.ppEnabledLayerNames = validationLayers.data();
+                createInfo.enabledLayerCount = static_cast<uint32_t>(layers.size());
+                createInfo.ppEnabledLayerNames = layers.data();
 
                 populateDebugMessengerCreateInfo(debugCreateInfo);
                 createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
@@ -1317,30 +1504,29 @@ namespace SF10 {
         }
 
         bool checkValidationLayerSupport() {
+            return checkLayerSupport(validationLayers);
+        }
+        bool checkLayerSupport(const std::vector<const char*> layers) {
             uint32_t layerCount;
             vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
             std::vector<VkLayerProperties> availableLayers(layerCount);
             vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-            for (const char* layerName : validationLayers) {
-                bool layerFound = false;
+            size_t layerS = layers.size();
+            for (const char* layerName : layers) {
 
                 for (const auto& layerProperties : availableLayers) {
+                    std::cout << "layer: " << layerProperties.layerName << " version " << layerProperties.implementationVersion << "found" << std::endl;
                     if (strcmp(layerName, layerProperties.layerName) == 0) {
-                        layerFound = true;
+                        layerS--;
                         break;
                     }
                 }
 
-                if (!layerFound) {
-                    return false;
-                }
             }
 
-            return true;
+            return layerS == 0;
         }
-
         static std::vector<char> readFile(const std::string& filename) {
             std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
