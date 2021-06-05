@@ -9,6 +9,15 @@
     <ClInclude Include="D:\SturdyEngine\SturdyEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="D:\SturdyEngine\cpuinfo\cpuinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\SturdyEngine\cpuinfo\cpuinfox86.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\SturdyEngine\cpuinfo\cpuinfoARM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\SturdyEngine\CMakeLists.txt" />

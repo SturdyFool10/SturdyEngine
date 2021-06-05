@@ -16,6 +16,9 @@
 #include <glm/glm.hpp>
 #include <memory> //does java like gc for us... todo: use this in games
 #include <OpenXR/openxr.h> //TODO: actually use this
+#include <thread>
+#include "cpuinfo/cpuinfo.h"
+constexpr auto procInfoMode = 1;
 /*
 TODO list:
 - OpenXR Vulkan Pipelines
@@ -35,6 +38,7 @@ TODO list:
 - Code Generators for scenes to improve load times
 - Focus listeners(window defocus and focus)
 */
+
 using vec2 = glm::vec2;
 using vec3 = glm::vec3;
 namespace SF10 {
@@ -137,7 +141,7 @@ namespace SF10 {
                 }
             };
         };
-        
+
         struct KeyboardInput {
             bool modifiers[6];
             bool keys[GLFW_KEY_LAST];
@@ -248,10 +252,32 @@ namespace SF10 {
     enum class renderTypes {
         Rasterized, Raytraced, MeshShaded, VRRasterized, VRMesh, VRRaytraced
     };
-
-
+    struct MonitorDescriptor {
+        glm::vec4 bounds;
+        GLFWmonitor* obj;
+        const char* name;
+        MonitorDescriptor(glm::vec4 bounds, GLFWmonitor* mon) {
+            this->bounds = bounds;
+            this->obj = mon;
+            const char* n = glfwGetMonitorName(mon);
+            this->name = n;
+        }
+        bool isPointInMonitor(glm::vec2 pos) {
+            int x2 = bounds.x + bounds.z;
+            int y2 = bounds.y + bounds.w;
+            if (pos.x >= bounds.x && (pos.y >= bounds.y && (pos.x <= x2 && (pos.y <= y2)))) {
+                return true;
+            }
+            return false;
+        }
+        MonitorDescriptor() {
+            this->bounds = glm::vec4(0);
+            this->obj = NULL;
+        }
+    };
     class SturdyEngine {
     public:
+        CPUInfo::CPU processor;
         void run() {
             bool rtCapable = false;
             initWindow();
@@ -321,6 +347,9 @@ namespace SF10 {
 
         //begin event handlers
 
+        int getSuggestedMaxThreadCount() {
+            return std::thread::hardware_concurrency();
+        }
 
         //handles all key events raw
         virtual void onKey(int key, int scancode, int action, int mods) {
@@ -339,6 +368,14 @@ namespace SF10 {
 
         //calls back every time there is a change of state of a mouse button
         virtual void onClick(Input::Mouse::Button button) {
+
+        }
+
+        virtual void onWindowResize(GLFWwindow* window, int width, int height) {
+
+        }
+
+        virtual void onScroll(int xDel, int yDel) {
 
         }
 
@@ -390,6 +427,31 @@ namespace SF10 {
         bool isWindowFullscren() {
             return (glfwGetWindowMonitor(this->getWindow()) != NULL);
         }
+        //returns monitor id for a vec2, returns 0 if out of bounds
+        int getMonitorID(vec2 pos) {
+            int id = 0;
+            for (size_t i = 0; i < monitors.size(); ++i) {
+                vec2 pos = vec2(pos.x, pos.y);
+                MonitorDescriptor monitor = monitors[i];
+                if (monitor.isPointInMonitor(pos)) {
+                    id = i;
+                    break;
+                }
+            }
+            return id;
+        }
+        MonitorDescriptor getMonitorByPoint(vec2 pos) {
+            int id = 0;
+            for (size_t i = 0; i < monitors.size(); ++i) {
+                vec2 pos = vec2(pos.x, pos.y);
+                MonitorDescriptor monitor = monitors[i];
+                if (monitor.isPointInMonitor(pos)) {
+                    id = i;
+                    break;
+                }
+            }
+            return monitors[id];
+        }
         void setFullscreen(bool tf, int monitor = NULL) {
             if (fullscreen == tf || (isWindowFullscren() == tf)) {
                 std::cout << "catch 1 triggered" << std::endl;
@@ -417,8 +479,11 @@ namespace SF10 {
                 }
                 int x, y, width, height;
                 glfwGetMonitorWorkarea(mon, &x, &y, &width, &height);
-                glfwSetWindowMonitor(this->getWindow(), nullptr, x + ((double)width / 2.0 - (windowedSize.x / 2.0)), y + ((double)height / 2.0 - (windowedSize.y/2.0)), windowedSize.x, windowedSize.y, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(this->getWindow(), nullptr, x + ((double)width / 2.0 - (windowedSize.x / 2.0)), y + ((double)height / 2.0 - (windowedSize.y / 2.0)), windowedSize.x, windowedSize.y, GLFW_DONT_CARE);
             }
+        }
+        vec2 getWindowedSize() {
+            return windowedSize;
         }
         int getMonitorMaxRefreshRate(GLFWmonitor* mon) {
             const GLFWvidmode* currentMode = glfwGetVideoMode(mon);
@@ -468,7 +533,8 @@ namespace SF10 {
                 glfwWindowHint(GL_GREEN_BITS, 10);
                 glfwWindowHint(GL_BLUE_BITS, 10);
                 glfwWindowHint(GL_ALPHA_BITS, 2);
-            } else {
+            }
+            else {
                 if (enable == true) {
                     std::cout << "SturdyEngine could not enable HDR, either your monitor is not setup for HDR, or it is not supported at all." << std::endl;
                 }
@@ -476,7 +542,16 @@ namespace SF10 {
                 glfwWindowHint(GLFW_GREEN_BITS, 8);
                 glfwWindowHint(GLFW_BLUE_BITS, 8);
                 glfwWindowHint(GL_ALPHA_BITS, 2);
-            } 
+            }
+        }
+
+        int getDeviceMemoryCapacityMB(VkPhysicalDevice device) {
+            VkPhysicalDeviceMemoryProperties memProps;
+            vkGetPhysicalDeviceMemoryProperties(device, &memProps);
+            auto heapsPointer = memProps.memoryHeaps;
+            auto heaps = std::vector<VkMemoryHeap>(heapsPointer, heapsPointer + memProps.memoryHeapCount);
+            double totalSize = heaps[0].size / 1000000.0;
+            return round(totalSize);
         }
         renderTypes renderer;
         Input::KeyboardInput keyboard;
@@ -525,29 +600,7 @@ namespace SF10 {
         bool windowFullscreen = false;
         //custom engine code
         std::vector<const char*> requiredExtensions;
-        struct MonitorDescriptor {
-            glm::vec4 bounds;
-            GLFWmonitor* obj;
-            const char* name;
-            MonitorDescriptor(glm::vec4 bounds, GLFWmonitor* mon) {
-                this->bounds = bounds;
-                this->obj = mon;
-                const char* n = glfwGetMonitorName(mon);
-                this->name = n;
-            }
-            bool isPointInMonitor(glm::vec2 pos) {
-                int x2 = bounds.x + bounds.z;
-                int y2 = bounds.y + bounds.w;
-                if (pos.x >= bounds.x && (pos.y >= bounds.y && (pos.x <= x2 && (pos.y <= y2)))) {
-                    return true;
-                }
-                return false;
-            }
-            MonitorDescriptor() {
-                this->bounds = glm::vec4(0);
-                this->obj = NULL;
-            }
-        };
+        
         std::vector<MonitorDescriptor> monitors = {};
 
         void initWindow() {
@@ -569,7 +622,7 @@ namespace SF10 {
 
             //end monitor list init
 
-            glfwSetMonitorCallback(monitor_callback);
+            glfwSetMonitorCallback(privateMonitorCallback);
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
             window = glfwCreateWindow(WIDTH, HEIGHT, this->windowTitle, nullptr, nullptr);
@@ -582,12 +635,14 @@ namespace SF10 {
             glfwSetCharCallback(window, privateCharCallback);
             glfwSetCursorPosCallback(window, privateCursorPosCallback);
             glfwSetMouseButtonCallback(window, privateClickCallback);
+            glfwSetScrollCallback(window, privateScrollCallback);
+            glfwSetJoystickCallback(privateJoystickCallbackNC);
             this->windowExists = true;
             //this call may look stupid, but there was a alternate case where window is not initialized, so this needs to be called to actually *set* the cursor how we did during setup...
             setCursorMode(window, this->startingCursorMode);
         }
 
-        static void monitor_callback(GLFWmonitor* monitor, int event)
+        static void privateMonitorCallback(GLFWmonitor* monitor, int event)
         {
             SturdyEngine* a = reinterpret_cast<SturdyEngine*>(glfwGetMonitorUserPointer(monitor));
             int count;
@@ -640,9 +695,33 @@ namespace SF10 {
             app->onClick(app->mouse.buttons[button]);
         }
 
+        static void privateScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+        {
+            auto app = reinterpret_cast<SturdyEngine*>(glfwGetWindowUserPointer(window));
+            app->framebufferResized = true;
+            app->onScroll(xoffset, yoffset);
+        }
+
+        //unfortunately without the existance of a exit method, this one cannot have a callback for user definition... static funcs suck, atleast we can print a nice message
+        static void privateJoystickCallbackNC(int id, int action) {
+            if (action == GLFW_CONNECTED) {
+                if (glfwJoystickIsGamepad(id) == true) {
+                    GLFWgamepadstate state;
+                    glfwGetGamepadState(id, &state);
+                    std::cout << "Gamepad Connected: Name: " << glfwGetGamepadName(id) << ", ID: " << id << ", Buttons: " << 15 << ", Axes: " << 6 << std::endl; //state button and axes counts are hard coded, even if I added dynamic length getter it would always be these values, might as well hard code it myself too
+                }
+                else {
+                    std::cout << "Unkown Joystick Connected on ID: " << id << std::endl;
+                }
+            }
+            else if (action == GLFW_DISCONNECTED) {
+                std::cout << "Joystick Disconnected at ID: " << id << std::endl;
+            }
+        }
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
             auto app = reinterpret_cast<SturdyEngine*>(glfwGetWindowUserPointer(window));
             app->framebufferResized = true;
+            app->onWindowResize(window, width, height);
             if (!app->fullscreen) {
                 app->windowedSize = vec2(width, height);
             }
@@ -860,6 +939,7 @@ namespace SF10 {
             }
         }
 
+        //binds vulkan to the glfw window instance, this is absolutely necissary to view anything at all theoretically, I am not an expert with glfw, nor do I know the underlying windows platform api
         void createSurface() {
             if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
                 throw std::runtime_error("failed to create window surface!");
@@ -873,21 +953,82 @@ namespace SF10 {
             if (deviceCount == 0) {
                 throw std::runtime_error("failed to find GPUs with Vulkan support!");
             }
+            else {
+                std::cout << "Found: " << deviceCount << " potential GPU(s), we need to do some selecting!!!" << std::endl;
+            }
 
             std::vector<VkPhysicalDevice> devices(deviceCount);
             vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
+            //vector is here to catch any devices, if it is more than one, we need to do some kind of scoring to pick the right one
+            std::vector<VkPhysicalDevice> validDevices;
+
             for (const auto& device : devices) {
                 if (isDeviceSuitable(device, requirements)) {
-                    physicalDevice = device;
+                    validDevices.push_back(device);
                     break;
                 }
             }
-
-            if (physicalDevice == VK_NULL_HANDLE) {
+            size_t dev = validDevices.size();
+            bool vkSuccess = false;
+            if (dev == 1) {
+                physicalDevice = validDevices[0];
+                vkSuccess = true;
+            }
+            else if (dev > 1) {
+                handleMultipleGPUs(validDevices);
+                vkSuccess = true;
+            }
+            else {
                 throw std::runtime_error("failed to find a suitable GPU!");
             }
+            if (vkSuccess) {
+                VkPhysicalDeviceProperties properties;
+                vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+                std::cout << "SturdyEngine is using: " << properties.deviceName << ", this device scores: " << scoreGPU(physicalDevice) << ", Total VRAM: " << getDeviceMemoryCapacityMB(getGPU()) << std::endl;
+            }
         }
+
+        void handleMultipleGPUs(std::vector<VkPhysicalDevice> devices) {
+            struct deviceScoreStorage {
+                VkPhysicalDevice device;
+                double score;
+                deviceScoreStorage(VkPhysicalDevice device, double score) {
+                    this->device = device;
+                    this->score = score;
+                }
+            };
+            std::vector<deviceScoreStorage> scores;
+            for (auto device : devices) {
+                scores.push_back(deviceScoreStorage(device, scoreGPU(device)));
+            }
+            //now to sort the scores
+
+            deviceScoreStorage winner = scores[0];
+            for (auto s : scores) {
+                if (s.score > winner.score) {
+                    winner = s;
+                }
+            }
+
+            physicalDevice = winner.device;
+        }
+
+        double scoreGPU(VkPhysicalDevice device) {
+            double score = 0;
+            VkPhysicalDeviceLimits limits;
+            VkPhysicalDeviceProperties properties;
+            vkGetPhysicalDeviceProperties(device, &properties);
+            limits = properties.limits;
+            score += limits.maxFramebufferWidth / 1000.0;
+            score += limits.maxFramebufferHeight / 1000.0;
+            score += limits.maxViewports;
+            score += limits.maxFramebufferLayers;
+            score += getDeviceMemoryCapacityMB(device) / 10.0;
+            return score;
+        }
+
+
 
         void createLogicalDevice(std::vector<const char*> extensions = deviceExtensions) {
             QueueFamilyIndices indices = findQueueFamilies(physicalDevice);

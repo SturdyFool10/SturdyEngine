@@ -128,7 +128,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\debug\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\Debug\openxr_loaderd.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\debug\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\Debug\openxr_loaderd.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:/Libraries/RayTracingDenoiser-master/Include;D:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);D:/Libraries/NSight/NvPerf/include/windows-desktop-x64;D:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -184,7 +184,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\Release\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\Release\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:/Libraries/RayTracingDenoiser-master/Include;D:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);D:/Libraries/NSight/NvPerf/include/windows-desktop-x64;D:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -240,7 +240,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\MinSizeRel\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\MinSizeRel\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:/Libraries/RayTracingDenoiser-master/Include;D:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);D:/Libraries/NSight/NvPerf/include/windows-desktop-x64;D:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -295,7 +295,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\RelWithDebInfo\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;D:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\RelWithDebInfo\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:/Libraries/RayTracingDenoiser-master/Include;D:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);D:/Libraries/NSight/NvPerf/include/windows-desktop-x64;D:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -368,6 +368,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="D:\SturdyEngine\Main.cpp" />
     <ClInclude Include="D:\SturdyEngine\SturdyEngine.h" />
+    <ClInclude Include="D:\SturdyEngine\cpuinfo\cpuinfo.h" />
+    <ClInclude Include="D:\SturdyEngine\cpuinfo\cpuinfox86.h" />
+    <ClInclude Include="D:\SturdyEngine\cpuinfo\cpuinfoARM.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="D:\SturdyEngine\build\ZERO_CHECK.vcxproj">
