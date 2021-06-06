@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 bool initialized = false;
 #ifdef _M_AMD64

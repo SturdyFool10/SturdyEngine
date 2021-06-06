@@ -4,41 +4,45 @@
 #include <cmath>
 #include <stdbool.h>
 #include "glm/gtc/random.hpp"
-class Application : public SF10::SturdyEngine {
+class Application : public SFT::SturdyEngine {
     public:
         vec2 screenDimensions = vec2(0.0);
         vec2 windowVelocity;
         vec2 windowPos;
         void setup() {
-            this->renderer = SF10::renderTypes::Rasterized;
-            setCursorMode(this->getWindow(), SF10::Input::Mouse::NORMAL);
+            this->renderer = SFT::renderTypes::Rasterized;
+            setCursorMode(this->getWindow(), SFT::Input::Mouse::NORMAL);
             std::cout << "Application Suggested Threads: " << getSuggestedMaxThreadCount() << std::endl;
             std::cout << "Using Processor: " << processor.getDescriptor().brandname << std::endl;
-            windowVelocity = vec2(120, 420);
-            windowPos = vec2(0.0);
+            windowVelocity = glm::diskRand(5000.0);
+            int x, y;
+            glfwGetWindowPos(getWindow(), &x, &y);
+            windowPos = vec2(x, y);
+            int n = (10289, 2394324, 4342434, 434322343, 3424343);
+            std::cout << "Num: " << n << std::endl;
+            requestFocus();
         }
         void update() {
             draw();
             vec2 corner2(windowPos.x + getWindowedSize().x, windowPos.y + getWindowedSize().y);
-            SF10::MonitorDescriptor mon = getMonitorByPoint(windowPos);
+            SFT::MonitorDescriptor mon = getMonitorByPoint(windowPos);
             vec2 monCorner2(mon.bounds.x + mon.bounds.z, mon.bounds.y + mon.bounds.w);
             if (windowPos.x < mon.bounds.x) {
                 windowVelocity.x = abs(windowVelocity.x);
             }
-            if (windowPos.y < mon.bounds.y) {
-                windowVelocity.y = abs(windowVelocity.y);
-            }
             if (corner2.x > monCorner2.x) {
                 windowVelocity.x = -abs(windowVelocity.x);
+            }
+            if (windowPos.y < mon.bounds.y) {
+                windowVelocity.y = abs(windowVelocity.y);
             }
             if (corner2.y > monCorner2.y) {
                 windowVelocity.y = -abs(windowVelocity.y);
             }
-            vec2 move = vec2(windowVelocity.x * getFrameTime(), windowVelocity.x * getFrameTime());
+            vec2 move = vec2(windowVelocity.x * getFrameTime(), windowVelocity.y * getFrameTime());
             vec2 newPos = windowPos + move;
             windowPos = newPos;
             glfwSetWindowPos(getWindow(), windowPos.x, windowPos.y);
-
         }
         void clean() {
             std::cout << "Clean Called, Application closing" << "\n";
@@ -71,7 +75,7 @@ class Application : public SF10::SturdyEngine {
         }
 
         //calls back every time there is a change of state of a mouse button
-        void onClick(SF10::Input::Mouse::Button button) {
+        void onClick(SFT::Input::Mouse::Button button) {
             std::cout << "Click Event\nButton: " << button.button << "\nPosition: (X: " << button.position.x << ", Y: " << button.position.y << ")\nAction: " << button.lastAction << "\nHandled: " << button.wasHandled << std::endl;
             button.wasHandled = true;
         }

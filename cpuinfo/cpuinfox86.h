@@ -1,14 +1,15 @@
 //this file is only included when compiling for x86 or x86-64, manual forced inclusion is not recommended
-
+#pragma once
 #include <iostream>
 #include <vector>
 #include <bitset>
 #include <array>
 
+//this file will be nonsense to arm processors, there will be errors, but it is normal but will not cause you trouble as this file isn't included anywhere in ARM compilaiton, just move along
 namespace CPUInfoShifts {
     //ARM extensions exist to prevent the need for preprocessors in your code, just so it exists, it will return non-corelated data but it won't error
     enum shifts0 {
-        _3DNOW, _3DNOWEXT, ABM, ADX, AES, AVX, AVX2, AVX512CD, AVX512ER, AVX512F, AVX512PF, BMI1, BMI2, CLFSH, CMPXCHG16B, CX8, ERMS, F16C, FMA, FSGSBASE, FXSR, HLE, INVPCID, LAHF, LZCNT, MMX, MMXEXT, MONITOR, MOVBE, MSR, OSXSAVE, PCLMULQDQ, HELIUM = 0, NEON = 1
+        _3DNOW, _3DNOWEXT, ABM, ADX, AES, AVX, AVX2, AVX512CD, AVX512ER, AVX512F, AVX512PF, BMI1, BMI2, CLFSH, CMPXCHG16B, CX8, ERMS, F16C, FMA, FSGSBASE, FXSR, HLE, INVPCID, LAHF, LZCNT, MMX, MMXEXT, MONITOR, MOVBE, MSR, OSXSAVE, PCLMULQDQ, NEON = 0
     };
     enum shifts1 {
         POPCNT, PREFETCHWT1, RDRAND, RDSEED, RDTSCP, RTM, SEP, SHA, SSE, SSE2, SSE3, SSE4_1, SSE4_2, SSE4a, SSSE3, SYSCALL, TBM, XOP, XSAVE

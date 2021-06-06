@@ -41,7 +41,7 @@ TODO list:
 
 using vec2 = glm::vec2;
 using vec3 = glm::vec3;
-namespace SF10 {
+namespace SFT {
     namespace Scene {
         namespace Camera {
             class Camera2D {
@@ -163,7 +163,7 @@ namespace SF10 {
                 this->modifiers[Keyboard::Modifiers::NUMLOCK] = (mods & GLFW_MOD_NUM_LOCK) != 0x0000;
             }
         };
-        using mouseButton = SF10::Input::Mouse::Button;
+        using mouseButton = SFT::Input::Mouse::Button;
         class MouseInput {
         public:
             MouseInput() {
@@ -319,8 +319,11 @@ namespace SF10 {
             return p;
         }
         VkPhysicalDeviceLimits getGPULimits(VkPhysicalDevice& dev) {
-            VkPhysicalDeviceLimits limits;
+            VkPhysicalDeviceProperties prop = getGPUProperties(dev);
+            VkPhysicalDeviceLimits limits = prop.limits;
+            return limits;
         }
+        //returns true if the physical device supports raytracing
         bool doesGPUSupportRT(VkPhysicalDevice& d) {
             uint32_t extensionCount;
             vkEnumerateDeviceExtensionProperties(d, nullptr, &extensionCount, nullptr);
@@ -334,6 +337,24 @@ namespace SF10 {
 
             return requiredExtensions.empty();
 
+        }
+        //requests focus if your OS supports it, if used in setup it queues the request up for after the window is created
+        void requestFocus(GLFWwindow* window) {
+            if (windowExists) {
+                glfwRequestWindowAttention(window);
+                return;
+            }
+            if (window == this->window) {
+                this->windowShouldRequestFocus = true;
+            }
+        }
+        //requests focus if your OS supports it, if used in setup it queues the request up for after the window is createdA
+        void requestFocus() {
+            if (windowExists) {
+                glfwRequestWindowAttention(window);
+                return;
+            }
+            this->windowShouldRequestFocus = true;
         }
         virtual void setup() {
             //runs once per instance, use to load files and other setup tasks, the vulkan pipeline has yet to be initialized so you can decide which renderer and which extensions you want to use
@@ -443,9 +464,12 @@ namespace SF10 {
         MonitorDescriptor getMonitorByPoint(vec2 pos) {
             int id = 0;
             for (size_t i = 0; i < monitors.size(); ++i) {
-                vec2 pos = vec2(pos.x, pos.y);
+                if (pos.x == NULL || pos.y == NULL) {
+                    break;
+                }
+                vec2 posi = vec2(pos.x, pos.y);
                 MonitorDescriptor monitor = monitors[i];
-                if (monitor.isPointInMonitor(pos)) {
+                if (monitor.isPointInMonitor(posi)) {
                     id = i;
                     break;
                 }
@@ -600,7 +624,7 @@ namespace SF10 {
         bool windowFullscreen = false;
         //custom engine code
         std::vector<const char*> requiredExtensions;
-        
+        bool windowShouldRequestFocus = false;
         std::vector<MonitorDescriptor> monitors = {};
 
         void initWindow() {
@@ -640,6 +664,10 @@ namespace SF10 {
             this->windowExists = true;
             //this call may look stupid, but there was a alternate case where window is not initialized, so this needs to be called to actually *set* the cursor how we did during setup...
             setCursorMode(window, this->startingCursorMode);
+            //setting window focus for the setup-state of it
+            if (windowShouldRequestFocus) {
+                glfwRequestWindowAttention(window);
+            }
         }
 
         static void privateMonitorCallback(GLFWmonitor* monitor, int event)
@@ -1665,7 +1693,6 @@ namespace SF10 {
                 }
 
             }
-
             return layerS == 0;
         }
         static std::vector<char> readFile(const std::string& filename) {
