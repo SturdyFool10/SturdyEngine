@@ -13,6 +13,7 @@ class Application : public SFT::SturdyEngine {
         bool firstUpdate = true;
         SFT::MonitorDescriptor mon;
         void setup() {
+            std::cout << "Camera Ram Usage: " << sizeof(SFT::Scene::Camera::PerspectiveCamera3D) << "\n";
             this->renderer = SFT::renderTypes::Rasterized;
             setCursorMode(this->getWindow(), SFT::Input::Mouse::NORMAL);
             std::cout << "Application Suggested Threads: " << getSuggestedMaxThreadCount() << std::endl;
@@ -87,7 +88,7 @@ class Application : public SFT::SturdyEngine {
         }
 
     private:
-
+    
 };
 
 

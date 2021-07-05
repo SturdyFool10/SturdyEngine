@@ -55,7 +55,34 @@ namespace SFT {
             class Camera3D {
             public:
                 void setPosition(vec3 position) {
-
+                    this->pos = position;
+                }
+                template<typename T>
+                void setPosition(T x, T y, T z) {
+                    this->pos = vec3(x, y, z);
+                }
+                void setRotationDeg(vec3 rotation) {
+                    this->rot = vec3(glm::radians(rotation.x), glm::radians(rotation.y), glm::radians(rotation.z));
+                }
+                void setRotationRad(vec3 rotation) {
+                    this->rot = rotation;
+                }
+                template<typename T>
+                void setRotationDeg(T x, T y, T z) {
+                    this->rot = vec3(glm::radians(x), glm::radians(y), glm::radians(z));
+                }
+                template<typename T>
+                void setRotationRad(T x, T y, T z) {
+                    this->rot = vec3(x, y, z);
+                }
+                vec3 getRotationRad() {
+                    return this->rot;
+                }
+                vec3 getRotationDeg() {
+                    return vec3(glm::degrees(this->rot.x), glm::degrees(this->rot.y), glm::degrees(this->rot.z));
+                }
+                vec3 getPosition() {
+                    return this->pos;
                 }
                 enum ProjectionMatrixes {
                     Perspective, Orthographic
@@ -64,32 +91,26 @@ namespace SFT {
                 void setProjectionMatrix(glm::mat4x4 matrix) {
                     this->projectionMatrix = matrix;
                 }
-                void setPosition(glm::vec3 newPos) {
-
-                }
-                glm::vec3 getPosiiton() {
-                    return this->pos;
-                }
-                glm::vec3 getRotation() {
-                    return this->rot;
-                }
             private:
                 vec3 pos;
                 vec3 rot;
                 glm::mat4x4 projectionMatrix;
             };
-            class PerspectiveCamera : Camera3D {
+            //NOTE: the perspective camera's far poroperty will be null if it is set to be infinite, for most 3D programs this is your go to camera type
+            class PerspectiveCamera3D : Camera3D {
             public:
+                
                 double fov, aspect, near, far;
                 void setProjectionParameters(double fov = 45.0, double aspect = 16.0 / 9.0, double near = 0.000000002, double far = 1000000.0) {
                     this->setProjectionMatrix(glm::perspective(glm::radians(fov), aspect, near, far));
                     setMainProperties(fov, aspect, near);
                     this->far = far;
                 }
+                //sets the perspective camera to only have a near clipping plane, and will not ever cull what is infront of it ever
                 void setProjectionParametersINF(double fov = 45.0, double aspect = 16.0 / 9.0, double near = 0.000000002) {
                     this->setProjectionMatrix(glm::infinitePerspective(glm::radians(fov), aspect, near));
                     setMainProperties(fov, aspect, near);
-                    this->far = far;
+                    this->far = NULL;
                 }
             private:
                 void setMainProperties(double fov, double aspect, double near) {
@@ -98,8 +119,27 @@ namespace SFT {
                     this->near = near;
                 }
             };
+            //NOTE: near and far will be set to null in the case of an infinite ortho camera
             class OrthographicCamera : Camera3D {
-
+            public:
+                double left, right, bottom, top, near, far;
+                void setProjectionParameters(double left, double right, double bottom, double top, double near, double far) {
+                    this->setProjectionMatrix(glm::ortho(left, right, bottom, top, near, far));
+                    this->setMainProperties(left, right, bottom, top, near, far);
+                }
+                void setProjectionParametersINF(double left, double right, double bottom, double top) {
+                    this->setProjectionMatrix(glm::ortho(left, right, bottom, top));
+                    this->setMainProperties(left, right, bottom, top);
+                }
+            private:
+                void setMainProperties(double left, double right, double bottom, double top, double near = NULL, double far = NULL) {
+                    this->left = left;
+                    this->right = right;
+                    this->bottom = bottom;
+                    this->top = top;
+                    this->near = near;
+                    this->far = far;
+                }
             };
         }
         class Vertex {
