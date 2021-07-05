@@ -1,4 +1,9 @@
 # CMake generation dependency list for this directory.
+C:/Libraries/OpenXR-SDK-master/build/x64/src/loader/OpenXRConfig.cmake
+C:/Libraries/OpenXR-SDK-master/build/x64/src/loader/OpenXRConfigVersion.cmake
+C:/Libraries/OpenXR-SDK-master/build/x64/src/loader/OpenXRTargets.cmake
+C:/Libraries/glm/cmake/glm/glmConfig-version.cmake
+C:/Libraries/glm/cmake/glm/glmConfig.cmake
 C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCCompiler.cmake.in
 C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCCompilerABI.c
 C:/Program Files/CMake/share/cmake-3.20/Modules/CMakeCInformation.cmake
@@ -98,19 +103,14 @@ C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/Windows-MSVC-CXX.cmake
 C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/Windows-MSVC.cmake
 C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/Windows.cmake
 C:/Program Files/CMake/share/cmake-3.20/Modules/Platform/WindowsPaths.cmake
+C:/SturdyEngine/CMakeLists.txt
+C:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeCCompiler.cmake
+C:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeCXXCompiler.cmake
+C:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeRCCompiler.cmake
+C:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeSystem.cmake
 C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/share/glfw3/glfw3Config.cmake
 C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/share/glfw3/glfw3ConfigVersion.cmake
 C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/share/glfw3/glfw3Targets-debug.cmake
 C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/share/glfw3/glfw3Targets-release.cmake
 C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/share/glfw3/glfw3Targets.cmake
 C:/Users/Evan/Desktop/vpkg/vcpkg/scripts/buildsystems/vcpkg.cmake
-D:/Libraries/OpenXR-SDK-master/build/x64/src/loader/OpenXRConfig.cmake
-D:/Libraries/OpenXR-SDK-master/build/x64/src/loader/OpenXRConfigVersion.cmake
-D:/Libraries/OpenXR-SDK-master/build/x64/src/loader/OpenXRTargets.cmake
-D:/Libraries/glm/cmake/glm/glmConfig-version.cmake
-D:/Libraries/glm/cmake/glm/glmConfig.cmake
-D:/SturdyEngine/CMakeLists.txt
-D:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeCCompiler.cmake
-D:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeCXXCompiler.cmake
-D:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeRCCompiler.cmake
-D:/SturdyEngine/build/CMakeFiles/3.20.0/CMakeSystem.cmake

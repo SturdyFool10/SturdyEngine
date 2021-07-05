@@ -1,3 +1,4 @@
-D:/SturdyEngine/build/CMakeFiles/SturdyEngine.dir
-D:/SturdyEngine/build/CMakeFiles/ALL_BUILD.dir
-D:/SturdyEngine/build/CMakeFiles/ZERO_CHECK.dir
+C:/SturdyEngine/build/CMakeFiles/SturdyEngine.dir
+C:/SturdyEngine/build/CMakeFiles/SturdyEngineLib.dir
+C:/SturdyEngine/build/CMakeFiles/ALL_BUILD.dir
+C:/SturdyEngine/build/CMakeFiles/ZERO_CHECK.dir

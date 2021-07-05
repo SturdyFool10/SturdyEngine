@@ -22,32 +22,32 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{2D668E8E-454B-383C-BF48-F3A4F30BE08C}</ProjectGuid>
+    <ProjectGuid>{90D79DB7-1FD4-3DFA-A5A8-1A894110F1CD}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
     <Platform>x64</Platform>
-    <ProjectName>SturdyEngine</ProjectName>
+    <ProjectName>SturdyEngineLib</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
     <VcpkgEnabled>false</VcpkgEnabled>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
@@ -61,29 +61,21 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\SturdyEngine\build\Debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngine.dir\Debug\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngineLib.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\SturdyEngine\build\Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngine.dir\Release\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngineLib.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\SturdyEngine\build\MinSizeRel\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngine.dir\MinSizeRel\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngineLib.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\SturdyEngine\build\RelWithDebInfo\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngine.dir\RelWithDebInfo\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngineLib.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -115,31 +107,9 @@
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <PostBuildEvent>
-      <Message></Message>
-      <Command>setlocal
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Evan/Desktop/vpkg/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/SturdyEngine/build/Debug/SturdyEngine.exe -installedDir C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/debug/bin -OutVariable out
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-    </PostBuildEvent>
-    <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\debug\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\Debug\openxr_loaderd.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Libraries/RayTracingDenoiser-master/Include;C:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);C:/Libraries/NSight/NvPerf/include/windows-desktop-x64;C:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/SturdyEngine/build/Debug/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/SturdyEngine/build/Debug/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -171,31 +141,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <PostBuildEvent>
-      <Message></Message>
-      <Command>setlocal
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Evan/Desktop/vpkg/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/SturdyEngine/build/Release/SturdyEngine.exe -installedDir C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/bin -OutVariable out
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-    </PostBuildEvent>
-    <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\Release\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Libraries/RayTracingDenoiser-master/Include;C:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);C:/Libraries/NSight/NvPerf/include/windows-desktop-x64;C:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/SturdyEngine/build/Release/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/SturdyEngine/build/Release/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
@@ -227,31 +175,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <PostBuildEvent>
-      <Message></Message>
-      <Command>setlocal
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Evan/Desktop/vpkg/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/SturdyEngine/build/MinSizeRel/SturdyEngine.exe -installedDir C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/bin -OutVariable out
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-    </PostBuildEvent>
-    <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\MinSizeRel\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Libraries/RayTracingDenoiser-master/Include;C:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);C:/Libraries/NSight/NvPerf/include/windows-desktop-x64;C:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/SturdyEngine/build/MinSizeRel/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/SturdyEngine/build/MinSizeRel/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
@@ -282,31 +208,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <PostBuildEvent>
-      <Message></Message>
-      <Command>setlocal
-C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/Evan/Desktop/vpkg/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary C:/SturdyEngine/build/RelWithDebInfo/SturdyEngine.exe -installedDir C:/Users/Evan/Desktop/vpkg/vcpkg/installed/x64-windows/bin -OutVariable out
-if %errorlevel% neq 0 goto :cmEnd
-:cmEnd
-endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
-:cmErrorLevel
-exit /b %1
-:cmDone
-if %errorlevel% neq 0 goto :VCEnd</Command>
-    </PostBuildEvent>
-    <Link>
-      <AdditionalDependencies>C:\VulkanSDK\1.2.170.0\Lib\vulkan-1.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-cpp.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-glsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-hlsl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-msl.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-util.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\spirv-cross-reflect.lib;C:\Libraries\VulkanSDK\1.2.170.0\Lib\glslang.lib;C:\Users\Evan\Desktop\vpkg\vcpkg\installed\x64-windows\lib\glfw3dll.lib;C:\Libraries\OpenXR-SDK-master\build\x64\src\loader\RelWithDebInfo\openxr_loader.lib;advapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Libraries/RayTracingDenoiser-master/Include;C:/Libraries/RayTracingDenoiser-master/Include/$(Configuration);C:/Libraries/NSight/NvPerf/include/windows-desktop-x64;C:/Libraries/NSight/NvPerf/include/windows-desktop-x64/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/SturdyEngine/build/RelWithDebInfo/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/SturdyEngine/build/RelWithDebInfo/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="C:\SturdyEngine\CMakeLists.txt">
@@ -366,7 +270,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\SturdyEngine\Main.cpp" />
     <ClInclude Include="C:\SturdyEngine\SturdyEngine.h" />
     <ClInclude Include="C:\SturdyEngine\cpuinfo\cpuinfo.h" />
     <ClInclude Include="C:\SturdyEngine\cpuinfo\cpuinfox86.h" />

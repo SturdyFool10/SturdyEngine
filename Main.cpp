@@ -1,3 +1,4 @@
+//#include "meminfo.h" //this is only to be enabled on windows or linux, do not even try to use it elsewhere, as there are no protocols to gain access to memory consumption on other platforms. comment this out again when compiling for mac or mobile
 #include "SturdyEngine.h"
 #include <string>
 #include <cstring>
@@ -9,23 +10,29 @@ class Application : public SFT::SturdyEngine {
         vec2 screenDimensions = vec2(0.0);
         vec2 windowVelocity;
         vec2 windowPos;
+        bool firstUpdate = true;
+        SFT::MonitorDescriptor mon;
         void setup() {
             this->renderer = SFT::renderTypes::Rasterized;
             setCursorMode(this->getWindow(), SFT::Input::Mouse::NORMAL);
             std::cout << "Application Suggested Threads: " << getSuggestedMaxThreadCount() << std::endl;
-            std::cout << "Using Processor: " << processor.getDescriptor().brandname << std::endl;
-            windowVelocity = glm::diskRand(5000.0);
+            std::cout << "Using Processor: " << processor.getDescriptor().name << std::endl;
+            windowVelocity = glm::diskRand(500.0);
             int x, y;
             glfwGetWindowPos(getWindow(), &x, &y);
             windowPos = vec2(x, y);
-            int n = (10289, 2394324, 4342434, 434322343, 3424343);
-            std::cout << "Num: " << n << std::endl;
             requestFocus();
+            
         }
         void update() {
             draw();
+
             vec2 corner2(windowPos.x + getWindowedSize().x, windowPos.y + getWindowedSize().y);
-            SFT::MonitorDescriptor mon = getMonitorByPoint(windowPos);
+            if (firstUpdate == true) {
+                mon = getMonitorByPoint(windowPos);
+                firstUpdate = false;
+                mon.logInfo();
+            }
             vec2 monCorner2(mon.bounds.x + mon.bounds.z, mon.bounds.y + mon.bounds.w);
             if (windowPos.x < mon.bounds.x) {
                 windowVelocity.x = abs(windowVelocity.x);
@@ -73,7 +80,6 @@ class Application : public SFT::SturdyEngine {
                 this->screenDimensions = vec2(width, height);
             }
         }
-
         //calls back every time there is a change of state of a mouse button
         void onClick(SFT::Input::Mouse::Button button) {
             std::cout << "Click Event\nButton: " << button.button << "\nPosition: (X: " << button.position.x << ", Y: " << button.position.y << ")\nAction: " << button.lastAction << "\nHandled: " << button.wasHandled << std::endl;

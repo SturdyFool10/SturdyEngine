@@ -17,7 +17,7 @@ public:
 	std::string ar;
 	int32_t flags0 = 0x0000;
 	int32_t flags1 = 0x0000;
-	std::string brandname;
+	std::string name;
 	std::string vendor;
 	bool getFlag0(int shift) {
 		return (flags0 & shift) != 0;

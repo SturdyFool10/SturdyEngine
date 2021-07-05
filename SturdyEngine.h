@@ -17,6 +17,7 @@
 #include <memory> //does java like gc for us... todo: use this in games
 #include <OpenXR/openxr.h> //TODO: actually use this
 #include <thread>
+#include <glm/ext/matrix_clip_space.hpp>
 #include "cpuinfo/cpuinfo.h"
 constexpr auto procInfoMode = 1;
 /*
@@ -56,16 +57,46 @@ namespace SFT {
                 void setPosition(vec3 position) {
 
                 }
-                inline void setTransformMatrix() {
+                enum ProjectionMatrixes {
+                    Perspective, Orthographic
+                };
+                //this overload is a very good way to break shit, using the other one is recommended, this is only here to allow for some very advanced tricks, and for inheritance
+                void setProjectionMatrix(glm::mat4x4 matrix) {
+                    this->projectionMatrix = matrix;
+                }
+                void setPosition(glm::vec3 newPos) {
 
+                }
+                glm::vec3 getPosiiton() {
+                    return this->pos;
+                }
+                glm::vec3 getRotation() {
+                    return this->rot;
                 }
             private:
                 vec3 pos;
-                vec2 rot;
+                vec3 rot;
                 glm::mat4x4 projectionMatrix;
             };
             class PerspectiveCamera : Camera3D {
-
+            public:
+                double fov, aspect, near, far;
+                void setProjectionParameters(double fov = 45.0, double aspect = 16.0 / 9.0, double near = 0.000000002, double far = 1000000.0) {
+                    this->setProjectionMatrix(glm::perspective(glm::radians(fov), aspect, near, far));
+                    setMainProperties(fov, aspect, near);
+                    this->far = far;
+                }
+                void setProjectionParametersINF(double fov = 45.0, double aspect = 16.0 / 9.0, double near = 0.000000002) {
+                    this->setProjectionMatrix(glm::infinitePerspective(glm::radians(fov), aspect, near));
+                    setMainProperties(fov, aspect, near);
+                    this->far = far;
+                }
+            private:
+                void setMainProperties(double fov, double aspect, double near) {
+                    this->fov = fov;
+                    this->aspect = aspect;
+                    this->near = near;
+                }
             };
             class OrthographicCamera : Camera3D {
 
@@ -116,6 +147,7 @@ namespace SFT {
             };
             class Button {
             public:
+                //this is just here ot allow you ot tell when a button event has been handled, useful for button apis
                 bool wasHandled;
                 vec2 position;
                 int button;
@@ -183,7 +215,6 @@ namespace SFT {
     const uint32_t HEIGHT = 600;
 
     const int MAX_FRAMES_IN_FLIGHT = 2;
-
     const std::vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
     };
@@ -192,19 +223,25 @@ namespace SFT {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
     namespace RequiredExtensions {
-        const std::vector<const char*> Rasterized = {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
-        };
+        namespace DeviceExtensions {
+            const std::vector<const char*> Rasterized = {
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+            };
 
-        const std::vector<const char*> Raytraced = {
-            VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-            VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
-            VK_KHR_MAINTENANCE3_EXTENSION_NAME,
-            VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME,
-            VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-            VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+            const std::vector<const char*> Raytraced = {
+                VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+                VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+                VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+                VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME,
+                VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+                VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+            };
         };
+        namespace InstanceExtensions {
+            const std::vector<const char*> standard = {
+            };
+        }
     };
 
 
@@ -252,15 +289,191 @@ namespace SFT {
     enum class renderTypes {
         Rasterized, Raytraced, MeshShaded, VRRasterized, VRMesh, VRRaytraced
     };
-    struct MonitorDescriptor {
+    class ColorDepthDescriptor {
+    public:
+        int r, g, b;
+        ColorDepthDescriptor(int r, int g, int b) {
+            this->r = r;
+            this->g = g;
+            this->b = b;
+        }
+        void logInfo() {
+            std::cout << "\t\t\tRGB: " << r << ", " << g << ", " << b << std::endl;
+        }
+    };
+    class VideoModeOrganizer {
+    public:
+        int width;
+        int height;
+        std::vector<ColorDepthDescriptor> colorDepths;
+        std::vector<int> framerates;
+        std::vector<VideoModeOrganizer> exclusions;
+        VideoModeOrganizer(int w = 0, int h = 0, std::vector<ColorDepthDescriptor> colorDepthList = {}, std::vector<int> framerates = {}, std::vector<VideoModeOrganizer> exclusions = {}) {
+            this->width = w;
+            this->height = h;
+            this->colorDepths = colorDepthList;
+            this->framerates = framerates;
+            this->exclusions = exclusions; // this is a list of incompatible formats, such as if such a framerate cannot be achieved, I have no idea if this will ever be used though
+        }
+        void addFramerateMode(int framerate) {
+            this->framerates.push_back(framerate);
+        }
+        void addColorDepthMode(ColorDepthDescriptor desc) {
+            this->colorDepths.push_back(desc);
+        }
+        void addExclusion(VideoModeOrganizer exclusion) {
+            this->exclusions.push_back(exclusion);
+        }
+        bool hasMode(ColorDepthDescriptor desc, int framerate) {
+            bool found = false;
+            for (auto i : colorDepths) {
+                for (auto j : framerates) {
+                    if (i.r == desc.r && (i.g == desc.g && (i.b == desc.b && (j == framerate)))) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            return found;
+        }
+        bool hasColorDepth(ColorDepthDescriptor desc) {
+            bool found = false;
+            for (auto i : colorDepths) {
+                if (i.r == desc.r && (i.g == desc.g && (i.b == desc.b))) {
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        }
+        bool hasFramerate(int framerate) {
+            bool found = false;
+            for (auto i : framerates) {
+                if (i == framerate) {
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        }
+        void logInfo(std::ostream outputLocation) {
+            outputLocation << "\tMode {" << std::endl;
+            outputLocation << "\t\tResolution: " << this->width << "X" << this->height << std::endl;
+            outputLocation << "\t\tColorDepths: {" << std::endl;
+            for (auto i : this->colorDepths) {
+                outputLocation << "\t\t\tRGB: " << i.r << ", " << i.g << ", " << i.b << std::endl;
+            }
+            outputLocation << "\t\t}" << std::endl;
+            outputLocation << "\t\tFramerates: {" << std::endl;
+            for (auto i : framerates) {
+                std::cout << "\t\t\t" << i << std::endl;
+            }
+            outputLocation << "\t\t}" << std::endl;
+            outputLocation << "\t}" << std::endl;
+        }
+        void logInfo() {
+            std::cout << "\tMode {" << std::endl;
+            std::cout << "\t\tResolution: " << this->width << "X" << this->height << std::endl;
+            std::cout << "\t\tColorDepths: {" << std::endl;
+            for (auto i : this->colorDepths) {
+                i.logInfo();
+            }
+            std::cout << "\t\t}" << std::endl;
+            std::cout << "\t\tFramerates: {" << std::endl;
+            for (auto i : framerates) {
+                std::cout << "\t\t\t" << i << std::endl;
+            }
+            std::cout << "\t\t}" << std::endl;
+            std::cout << "\t}" << std::endl;
+        }
+    };
+    class MonitorDescriptor {
+    public:
         glm::vec4 bounds;
         GLFWmonitor* obj;
         const char* name;
+        std::vector<VideoModeOrganizer> vidOrganizers;
         MonitorDescriptor(glm::vec4 bounds, GLFWmonitor* mon) {
             this->bounds = bounds;
             this->obj = mon;
             const char* n = glfwGetMonitorName(mon);
+            getVideoModes(mon);
             this->name = n;
+        }
+        VideoModeOrganizer getVideoModeOrganizer(int resolutionWidth, int resolutionHeight) {
+            VideoModeOrganizer toRet = NULL;
+            for (auto or : vidOrganizers) {
+                if (resolutionWidth == or.width && (resolutionHeight == or.height)) {
+                    toRet = or;
+                }
+            }
+            return toRet;
+        }
+        void setVideoModeOrganizer(VideoModeOrganizer organizer) {
+            for (int i = 0; i < vidOrganizers.size(); ++i) {
+                VideoModeOrganizer or = vidOrganizers[i];
+                if (organizer.width == or.width && (organizer.height == or.height)) {
+                    vidOrganizers[i] = organizer;
+                }
+            }
+        }
+        void getVideoModes(GLFWmonitor* mon) {
+            int modeCount;
+            const GLFWvidmode* videoModes = glfwGetVideoModes(mon, &modeCount);
+            for (int i = 0; i < modeCount; ++i) {
+                GLFWvidmode mode = videoModes[i];
+                if (mode.width == 0 || (mode.height == 0 || (mode.redBits == 0 || (mode.greenBits == 0 || (mode.blueBits == 0 || (mode.refreshRate == 0)))))) continue;
+                bool found = false;
+                for (auto t : vidOrganizers) {
+                    if (mode.width == t.width && (mode.height == t.height)) {
+                        found = true;
+                        break;
+                    }
+                }
+                VideoModeOrganizer organizer = getVideoModeOrganizer(mode.width, mode.height);
+                if (!found) {
+                    organizer = VideoModeOrganizer(mode.width, mode.height);
+                    vidOrganizers.push_back(organizer);
+                }
+                
+                ColorDepthDescriptor d = ColorDepthDescriptor(mode.redBits, mode.greenBits, mode.blueBits);
+                if (organizer.hasColorDepth(d) == false) {
+                    organizer.addColorDepthMode(d);
+                }
+
+                if (organizer.hasFramerate(mode.refreshRate) == false) {
+                    organizer.addFramerateMode(mode.refreshRate);
+                }
+                setVideoModeOrganizer(organizer);
+            }
+        }
+        void logInfo(std::ostream outputLocation) {
+            outputLocation << "Display Name: " << this->name << ", bounds: [" << bounds.x << ", " << bounds.y << ", " << bounds.z << ", " << bounds.w << "], Modes: {" << std::endl;
+            for (auto m : this->vidOrganizers) {
+
+                outputLocation << "\tMode {" << std::endl;
+                outputLocation << "\t\tResolution: " << m.width << "X" << m.height << std::endl;
+                outputLocation << "\t\tColorDepths: {" << std::endl;
+                for (auto i : m.colorDepths) {
+                    outputLocation << "\t\t\tRGB: " << i.r << ", " << i.g << ", " << i.b << std::endl;
+                }
+                outputLocation << "\t\t}" << std::endl;
+                outputLocation << "\t\tFramerates: {" << std::endl;
+                for (auto i : m.framerates) {
+                    outputLocation << "\t\t\t" << i << std::endl;
+                }
+                outputLocation << "\t\t}" << std::endl;
+                outputLocation << "\t}" << std::endl;
+            }
+            outputLocation << "}" << std::endl;
+        }
+        void logInfo() {
+            std::cout << "Display Name: " << this->name << ", bounds: [" << bounds.x << ", " << bounds.y << ", " << bounds.z << ", " << bounds.w << "], Modes: {" << std::endl;
+            for (auto m : this->vidOrganizers) {
+                m.logInfo();
+            }
+            std::cout << "}" << std::endl;
         }
         bool isPointInMonitor(glm::vec2 pos) {
             int x2 = bounds.x + bounds.z;
@@ -329,7 +542,7 @@ namespace SFT {
             vkEnumerateDeviceExtensionProperties(d, nullptr, &extensionCount, nullptr);
             std::vector<VkExtensionProperties> availableExtensions(extensionCount);
             vkEnumerateDeviceExtensionProperties(d, nullptr, &extensionCount, availableExtensions.data());
-            std::set<std::string> requiredExtensions(RequiredExtensions::Raytraced.begin(), RequiredExtensions::Raytraced.end());
+            std::set<std::string> requiredExtensions(RequiredExtensions::DeviceExtensions::Raytraced.begin(), RequiredExtensions::DeviceExtensions::Raytraced.end());
 
             for (const auto& extension : availableExtensions) {
                 requiredExtensions.erase(extension.extensionName);
@@ -348,7 +561,7 @@ namespace SFT {
                 this->windowShouldRequestFocus = true;
             }
         }
-        //requests focus if your OS supports it, if used in setup it queues the request up for after the window is createdA
+        //requests focus if your OS supports it, if used in setup it queues the request up for after the window is created.
         void requestFocus() {
             if (windowExists) {
                 glfwRequestWindowAttention(window);
@@ -404,13 +617,21 @@ namespace SFT {
             return window;
         }
         //call in setup, dynamic enable of extensions is not supported, what you have enabled to start is what you have to work with!
-        void addExtension(const char* ext) {
-            requiredExtensions.push_back(ext);
+        void addDeviceExtension(const char* ext) {
+            requiredDeviceExtensions.push_back(ext);
         }
         //call in setup, dynamic enable of extensions is not supported, what you have enabled to start is what you have to work with!
-        void addExtension(std::vector<const char*> exts) {
+        void addDeviceExtension(std::vector<const char*> exts) {
             for (auto ext : exts) {
-                requiredExtensions.push_back(ext);
+                requiredDeviceExtensions.push_back(ext);
+            }
+        }
+        void addInstanceExtension(const char* ext) {
+            requiredInstanceExtensions.push_back(ext);
+        }
+        void addInstanceExtension(std::vector<const char*> exts) {
+            for (auto ext : exts) {
+                requiredInstanceExtensions.push_back(ext);
             }
         }
         //use this in update or you might have a bad time, 
@@ -623,7 +844,9 @@ namespace SFT {
         bool customWindowName = false;
         bool windowFullscreen = false;
         //custom engine code
-        std::vector<const char*> requiredExtensions;
+        std::vector<const char*> requiredDeviceExtensions;
+        std::vector<const char*> requiredInstanceExtensions;
+
         bool windowShouldRequestFocus = false;
         std::vector<MonitorDescriptor> monitors = {};
 
@@ -730,10 +953,10 @@ namespace SFT {
             app->onScroll(xoffset, yoffset);
         }
 
-        //unfortunately without the existance of a exit method, this one cannot have a callback for user definition... static funcs suck, atleast we can print a nice message
+        //unfortunately without the existance of a exit point, this one cannot have a callback for user definition... static funcs suck, atleast we can print a nice message
         static void privateJoystickCallbackNC(int id, int action) {
             if (action == GLFW_CONNECTED) {
-                if (glfwJoystickIsGamepad(id) == true) {
+                if (glfwJoystickIsGamepad(id) == GLFW_TRUE) {
                     GLFWgamepadstate state;
                     glfwGetGamepadState(id, &state);
                     std::cout << "Gamepad Connected: Name: " << glfwGetGamepadName(id) << ", ID: " << id << ", Buttons: " << 15 << ", Axes: " << 6 << std::endl; //state button and axes counts are hard coded, even if I added dynamic length getter it would always be these values, might as well hard code it myself too
@@ -759,14 +982,15 @@ namespace SFT {
 
         void initVulkanRasterized() {
             //default extensions logic
-            addExtension(RequiredExtensions::Rasterized);
+            addDeviceExtension(RequiredExtensions::DeviceExtensions::Raytraced);
 
             //initializing vulkan as rasterizer
-            createInstance(renderer);
+
+            createInstance(renderer, requiredInstanceExtensions);
             setupDebugMessenger();
             createSurface();
-            pickPhysicalDevice(requiredExtensions);
-            createLogicalDevice(requiredExtensions);
+            pickPhysicalDevice(requiredDeviceExtensions);
+            createLogicalDevice(requiredDeviceExtensions);
             createSwapChain();
             createImageViews();
             createRenderPass();
@@ -778,13 +1002,13 @@ namespace SFT {
         }
         void initVulkanRaytraced() {
             //default extensions logic
-            addExtension(RequiredExtensions::Raytraced);
+            addDeviceExtension(RequiredExtensions::DeviceExtensions::Raytraced);
             //initializing H.A.R pipeline
-            createInstance(renderer);
+            createInstance(renderer, requiredInstanceExtensions);
             setupDebugMessenger();
             createSurface();
-            pickPhysicalDevice(requiredExtensions);
-            createLogicalDevice(requiredExtensions);
+            pickPhysicalDevice(requiredDeviceExtensions);
+            createLogicalDevice(requiredDeviceExtensions);
             createAccelerationStructures();
         }
         void mainLoop() {
@@ -902,16 +1126,13 @@ namespace SFT {
             createCommandBuffers();
         }
 
-        void createInstance(renderTypes type = renderTypes::Rasterized) {
+        void createInstance(renderTypes type = renderTypes::Rasterized, std::vector<const char*> instanceExts = RequiredExtensions::InstanceExtensions::standard) {
             std::vector<const char*> layers;
             if (enableValidationLayers && !checkValidationLayerSupport()) {
                 throw std::runtime_error("validation layers requested, but not available!");
                 for (auto layer : validationLayers) {
                     layers.push_back(layer);
                 }
-            }
-            else {
-                std::cout << "Not all layers were found" << std::endl;
             }
             VkApplicationInfo appInfo{};
             appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -926,6 +1147,32 @@ namespace SFT {
             createInfo.pApplicationInfo = &appInfo;
 
             auto extensions = getRequiredExtensions();
+            std::vector<const char*> additionalExtensions;
+            additionalExtensions.resize(instanceExts.size());
+            int neededSize = 0;
+            for (auto newExt : instanceExts) {
+                bool found = false;
+                for (auto extension : extensions) {
+                    if (extension == newExt) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found == false) {
+                    additionalExtensions.push_back(newExt);
+                    neededSize += 1;
+                }
+            } //checks to make sure we do not have duplicates on the extension list
+            additionalExtensions.resize(neededSize);
+            extensions.resize(extensions.size() + neededSize); //resize the extensions pool to accept the new extensions
+            for (auto ext : additionalExtensions) {
+                extensions.push_back(ext);
+            } // add non-duplicate extensions to instance extension list
+            
+            
+            for (auto ext : extensions) {
+                std::cout << "Instance Extension: " << ext << " Enabled!" << std::endl;
+            }
             createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
             createInfo.ppEnabledExtensionNames = extensions.data();
 

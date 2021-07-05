@@ -240,7 +240,7 @@ int initFlags(ProcessorDescriptor& desc) {
     int32_t state1 = (InstructionSet::POPCNT()) | (InstructionSet::PREFETCHWT1() << 1) | (InstructionSet::RDRAND() << 2) | (InstructionSet::RDSEED() << 3) | (InstructionSet::RDTSCP() << 4) | (InstructionSet::RTM() << 5) | (InstructionSet::SEP() << 6) | (InstructionSet::SHA() << 7) | (InstructionSet::SSE() << 8) | (InstructionSet::SSE2() << 9) | (InstructionSet::SSE3() << 10) | (InstructionSet::SSE41() << 11) | (InstructionSet::SSE42() << 12) | (InstructionSet::SSE4a() << 13) | (InstructionSet::SSSE3() << 14) | (InstructionSet::SYSCALL() << 15) | (InstructionSet::TBM() << 16) | (InstructionSet::XOP() << 17) | (InstructionSet::XSAVE() << 18);
     desc.flags0 = state;
     desc.flags1 = state1;
-    desc.brandname = InstructionSet::Brand();
+    desc.name = InstructionSet::Brand();
     desc.vendor = InstructionSet::Vendor();
     desc.ar = "x86";
     initialized = true;

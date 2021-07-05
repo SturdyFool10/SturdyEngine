@@ -1,11 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\SturdyEngine\Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="C:\SturdyEngine\SturdyEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -25,9 +20,6 @@
   <ItemGroup>
     <Filter Include="Header Files">
       <UniqueIdentifier>{3921D244-9511-37F4-8690-8FBBF8521D86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{35C1E0BF-373A-3905-90E1-D2296B8D0BBE}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
