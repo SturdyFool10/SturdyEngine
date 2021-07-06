@@ -12,6 +12,7 @@ class Application : public SFT::SturdyEngine {
         vec2 windowPos;
         bool firstUpdate = true;
         SFT::MonitorDescriptor mon;
+        std::vector<SFT::Scene::Vertex> vertices;
         void setup() {
             std::cout << "Camera Ram Usage: " << sizeof(SFT::Scene::Camera::PerspectiveCamera3D) << "\n";
             this->renderer = SFT::renderTypes::Rasterized;
@@ -23,7 +24,11 @@ class Application : public SFT::SturdyEngine {
             glfwGetWindowPos(getWindow(), &x, &y);
             windowPos = vec2(x, y);
             requestFocus();
-            
+            vertices = {
+                {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+                {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+            };
         }
         void update() {
             draw();

@@ -142,28 +142,29 @@ namespace SFT {
                 }
             };
         }
-        class Vertex {
-        public:
-            vec2 pos;
-            vec3 col;
-            Vertex(double x = 0.0, double y = 0.0, double r = 0.0, double g = 0.0, double b = 0.0) {
-                this->pos = vec2(x, y);
-                this->col = vec3(r, g, b);
+        struct Vertex {
+            glm::vec2 pos;
+            glm::vec3 color;
+
+            static VkVertexInputBindingDescription getBindingDescription() {
+                VkVertexInputBindingDescription bindingDescription{};
+                bindingDescription.binding = 0;
+                bindingDescription.stride = sizeof(Vertex);
+                bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+                return bindingDescription;
             }
-            Vertex(vec2 pos = vec2((double)0.0, (double)0.0), double r = 0.0, double g = 0.0, double b = 0.0) {
-                this->pos = pos;
-                this->col = vec3(r, g, b);
-            }
-            Vertex(double x = 0.0, double y = 0.0, vec3 col = vec3((double)0.0, (double)0.0, (double)0.0)) {
-                this->pos = vec2(x, y);
-                this->col = col;
-            }
-            Vertex(vec2 pos = vec2((double)0.0, (double)0.0), vec3 col = vec3((double)0.0, (double)0.0, (double)0.0)) {
-                this->pos = pos;
-                this->col = col;
-            }
-            ~Vertex() {
-                delete this;
+
+            static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+                std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+                attributeDescriptions[0].binding = 0;
+                attributeDescriptions[0].location = 0;
+                attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+                attributeDescriptions[0].offset = offsetof(Vertex, pos);
+                attributeDescriptions[1].binding = 0;
+                attributeDescriptions[1].location = 1;
+                attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+                attributeDescriptions[1].offset = offsetof(Vertex, color);
+                return attributeDescriptions;
             }
         };
         class World2D {
@@ -173,6 +174,48 @@ namespace SFT {
         class World3D {
         private:
             glm::mat4x4 transformationMatrix;
+        };
+        class Scene {
+        public:
+            std::vector<Vertex> getVerts() {
+                return verts;
+            }
+            //I have hidden access to the raw scene description to make it possible to keep tabs on when the vertex buffer needs updating
+            void addVert(Vertex v) {
+                this->verts.push_back(v);
+                this->updateGPUBuffer = true;
+            }
+            void setVerts(std::vector<Vertex> v) {
+                this->verts = v;
+                this->updateGPUBuffer = true;
+            }
+            void removeUpdateFlag() {
+                this->updateGPUBuffer = false;
+            }
+            void setVertexBuffer(VkBuffer buffer) {
+                this->vertexBuffer = buffer;
+            }
+            VkBuffer& getVertexBuffer() {
+                return this->vertexBuffer;
+            }
+            void destroyVertexBuffer(VkDevice device) {
+                vkFreeMemory(device, this->vertexBufferMemory, nullptr);
+                vkDestroyBuffer(device, this->vertexBuffer, nullptr);
+                
+            }
+            void setVertexBufferMemory(VkDeviceMemory memory) {
+                this->vertexBufferMemory = memory;
+            }
+        private:
+            std::vector<Vertex> verts = {
+                {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
+                {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+            };
+            //todo: update this and make it so that we only need an update when changes are made here
+            bool updateGPUBuffer = false;
+            VkBuffer vertexBuffer;
+            VkDeviceMemory vertexBufferMemory;
         };
     }
     namespace Input {
@@ -841,6 +884,9 @@ namespace SFT {
         renderTypes renderer;
         Input::KeyboardInput keyboard;
         Input::MouseInput mouse;
+        Scene::Scene getScene() {
+            return this->scene;
+        }
         //Anything below this point is heavy on API calls and is recommended for seasoned engine devs only, you have been warned, any and all modifications to this file do not void the license terms, as I do need to make money
     private:
         GLFWwindow* window;
@@ -889,6 +935,8 @@ namespace SFT {
 
         bool windowShouldRequestFocus = false;
         std::vector<MonitorDescriptor> monitors = {};
+
+        Scene::Scene scene;
 
         void initWindow() {
             glfwInit();
@@ -1021,25 +1069,71 @@ namespace SFT {
 
 
         void initVulkanRasterized() {
-            //default extensions logic
-            addDeviceExtension(RequiredExtensions::DeviceExtensions::Raytraced);
-
-            //initializing vulkan as rasterizer
-
-            createInstance(renderer, requiredInstanceExtensions);
+            createInstance();
             setupDebugMessenger();
             createSurface();
-            pickPhysicalDevice(requiredDeviceExtensions);
-            createLogicalDevice(requiredDeviceExtensions);
+            pickPhysicalDevice();
+            createLogicalDevice();
             createSwapChain();
             createImageViews();
             createRenderPass();
             createGraphicsPipeline();
             createFramebuffers();
             createCommandPool();
+            createVertexBuffer();
             createCommandBuffers();
             createSyncObjects();
         }
+
+        void createVertexBuffer() {
+            VkBufferCreateInfo bufferInfo{};
+            bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            std::vector<Scene::Vertex> vertices = scene.getVerts();
+            bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+            bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+            VkBuffer& buffer = scene.getVertexBuffer();
+            if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create vertex buffer!");
+            }
+            scene.setVertexBuffer(buffer); //this is just in case to make sure the scene has the correct buffer
+            VkPhysicalDeviceMemoryProperties memProperties;
+            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+            VkMemoryRequirements memRequirements;
+            vkGetBufferMemoryRequirements(device, scene.getVertexBuffer(), &memRequirements);
+            VkDeviceMemory vertexBufferMemory;
+            VkMemoryAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+            allocInfo.allocationSize = memRequirements.size;
+            allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+            if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
+                throw std::runtime_error("failed to allocate vertex buffer memory!");
+            }
+            else {
+                //success
+                scene.setVertexBufferMemory(vertexBufferMemory);
+                vkBindBufferMemory(device, buffer, vertexBufferMemory, 0);
+                void* data;
+                vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+                memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+                vkUnmapMemory(device, vertexBufferMemory);
+            }
+        }
+
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+            VkPhysicalDeviceMemoryProperties memProperties;
+            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+            VkMemoryRequirements memRequirements;
+            vkGetBufferMemoryRequirements(device, scene.getVertexBuffer(), &memRequirements);
+            for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+                if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                    return i;
+                }
+            }
+
+            throw std::runtime_error("failed to find suitable memory type!");
+        }
+
         void initVulkanRaytraced() {
             //default extensions logic
             addDeviceExtension(RequiredExtensions::DeviceExtensions::Raytraced);
@@ -1105,6 +1199,8 @@ namespace SFT {
         //cleans up memory used in default rasterizer pipeline, any additional extensions / objects may require cleanup in clean().
         void destroyVulkanRasterizer() {
             cleanupSwapChain();
+
+            scene.destroyVertexBuffer(device);
 
             for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
                 vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
@@ -1539,7 +1635,13 @@ namespace SFT {
             vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             vertexInputInfo.vertexBindingDescriptionCount = 0;
             vertexInputInfo.vertexAttributeDescriptionCount = 0;
+            auto bindingDescription = Scene::Vertex::getBindingDescription();
+            auto attributeDescriptions = Scene::Vertex::getAttributeDescriptions();
 
+            vertexInputInfo.vertexBindingDescriptionCount = 1;
+            vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+            vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+            vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
             VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
             inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
             inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -1696,6 +1798,12 @@ namespace SFT {
                 vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
                 vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+                VkBuffer vertexBuffers[] = { scene.getVertexBuffer() };
+                VkDeviceSize offsets[] = { 0 };
+                vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+
+                vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(scene.getVerts().size()), 1, 0, 0);
 
                 vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
