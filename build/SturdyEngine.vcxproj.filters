@@ -1,33 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\SturdyEngine\Main.cpp">
+    <ClCompile Include="C:\Users\Evan\source\repos\sturdyengine\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\SturdyEngine\SturdyEngine.h">
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\SturdyEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\SturdyEngine\cpuinfo\cpuinfo.h">
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\cpuinfo\cpuinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\SturdyEngine\cpuinfo\cpuinfox86.h">
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\cpuinfo\cpuinfox86.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\SturdyEngine\cpuinfo\cpuinfoARM.h">
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\cpuinfo\cpuinfoARM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\SturdyEngine\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\Evan\source\repos\sturdyengine\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{3921D244-9511-37F4-8690-8FBBF8521D86}</UniqueIdentifier>
+      <UniqueIdentifier>{3BA9475C-FEA7-353F-9AB4-1710CD18FA97}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{35C1E0BF-373A-3905-90E1-D2296B8D0BBE}</UniqueIdentifier>
+      <UniqueIdentifier>{B2BBD039-57A2-37B1-B896-A7DB814CE18E}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

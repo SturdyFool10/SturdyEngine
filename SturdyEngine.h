@@ -1,6 +1,5 @@
 #define GLFW_INCLUDE_VULKAN
 
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -13,12 +12,13 @@
 #include <optional>
 #include <set>
 #include <chrono>
-#include <glm/glm.hpp>
 #include <memory> //does java like gc for us... todo: use this in games
-#include <OpenXR/openxr.h> //TODO: actually use this
 #include <thread>
-#include <glm/ext/matrix_clip_space.hpp>
 #include "cpuinfo/cpuinfo.h"
+#include <glm/ext/matrix_clip_space.hpp>
+#include <OpenXR/openxr.h> //TODO: actually use this
+#include <glm/glm.hpp>
+#include <GLFW/glfw3.h>
 constexpr auto procInfoMode = 1;
 /*
 TODO list:
@@ -2094,7 +2094,7 @@ namespace SFT {
             std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
             if (!file.is_open()) {
-                throw std::runtime_error("failed to open file!");
+                throw std::runtime_error("failed to open file: " + filename + "!");
             }
 
             size_t fileSize = (size_t)file.tellg();
