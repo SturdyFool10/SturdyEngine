@@ -65,11 +65,13 @@ includelib/VkLayer_utils
 includelib/vulkan-1  
 
 )
+set(outputShaders
+
+)
 add_executable(${project_name} ${src} ${headers})
 include_directories(${includes})
 target_link_libraries(${project_name} PUBLIC ${libs})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${project_name})
 file(COPY shaders/ DESTINATION shaders/)
-file(COPY shaders/ DESTINATION Debug/shaders/)
-file(COPY shaders/ DESTINATION Release/shaders/)
 file(COPY includelib/ DESTINATION includelib/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/compileAndCopyShaders.bat DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)

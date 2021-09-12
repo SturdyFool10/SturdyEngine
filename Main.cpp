@@ -1,4 +1,4 @@
-//#include "meminfo.h" //this is only to be enabled on windows or linux, do not even try to use it elsewhere, as there are no protocols to gain access to memory consumption on other platforms. comment this out again when compiling for mac or mobile
+//#include "meminfo.h" //this is only to be enabled on windows or linux, do not even try to use it elsewhere, as there are no protocols to gain access to memory consumption on other platforms. comment this out again when compiling for mac or mobile(Notice: as of right now this header does not exist, do not use)
 #include "SturdyEngine.h"
 #include <string>
 #include <cstring>
@@ -14,53 +14,19 @@ class Application : public SFT::SturdyEngine {
         SFT::MonitorDescriptor mon;
         std::vector<SFT::Scene::Vertex> vertices;
         void setup() {
-            std::cout << "Camera Ram Usage: " << sizeof(SFT::Scene::Camera::PerspectiveCamera3D) << "\n";
             this->renderer = SFT::renderTypes::Rasterized;
             setCursorMode(this->getWindow(), SFT::Input::Mouse::NORMAL);
             std::cout << "Application Suggested Threads: " << getSuggestedMaxThreadCount() << std::endl;
             std::cout << "Using Processor: " << processor.getDescriptor().name << std::endl;
-            windowVelocity = glm::diskRand(500.0);
-            int x, y;
-            glfwGetWindowPos(getWindow(), &x, &y);
-            windowPos = vec2(x, y);
-            requestFocus();
-            vertices = {
-                {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-                {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-                {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-            };
         }
         void update() {
             draw();
-
-            vec2 corner2(windowPos.x + getWindowedSize().x, windowPos.y + getWindowedSize().y);
-            if (firstUpdate == true) {
-                mon = getMonitorByPoint(windowPos);
-                firstUpdate = false;
-                mon.logInfo();
-            }
-            vec2 monCorner2(mon.bounds.x + mon.bounds.z, mon.bounds.y + mon.bounds.w);
-            if (windowPos.x < mon.bounds.x) {
-                windowVelocity.x = abs(windowVelocity.x);
-            }
-            if (corner2.x > monCorner2.x) {
-                windowVelocity.x = -abs(windowVelocity.x);
-            }
-            if (windowPos.y < mon.bounds.y) {
-                windowVelocity.y = abs(windowVelocity.y);
-            }
-            if (corner2.y > monCorner2.y) {
-                windowVelocity.y = -abs(windowVelocity.y);
-            }
-            vec2 move = vec2(windowVelocity.x * getFrameTime(), windowVelocity.y * getFrameTime());
-            vec2 newPos = windowPos + move;
-            windowPos = newPos;
-            glfwSetWindowPos(getWindow(), windowPos.x, windowPos.y);
         }
         void clean() {
             std::cout << "Clean Called, Application closing" << "\n";
         }
 
+        //handles all keys raw, action is used to tell what is happening and mods is for the shift, ctrl, alt, super, capslock keys to detect activation
         void onKey(int key, int scancode, int action, int mods) {
             if (key == GLFW_KEY_ESCAPE) {
                 exit(0);
@@ -86,7 +52,7 @@ class Application : public SFT::SturdyEngine {
                 this->screenDimensions = vec2(width, height);
             }
         }
-        //calls back every time there is a change of state of a mouse button
+        //calls back every time there is a change of state of a mouse button, this works for the extended mouse buttons too(Mouse button 4 which you commonly see bound as a secondary input sometimes in games is valid here)
         void onClick(SFT::Input::Mouse::Button button) {
             std::cout << "Click Event\nButton: " << button.button << "\nPosition: (X: " << button.position.x << ", Y: " << button.position.y << ")\nAction: " << button.lastAction << "\nHandled: " << button.wasHandled << std::endl;
             button.wasHandled = true;

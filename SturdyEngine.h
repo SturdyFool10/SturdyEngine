@@ -192,19 +192,46 @@ namespace SFT {
             void removeUpdateFlag() {
                 this->updateGPUBuffer = false;
             }
-            void setVertexBuffer(VkBuffer buffer) {
+            void setVertexBuffer(VkBuffer& buffer) {
                 this->vertexBuffer = buffer;
+                this->vertexBufferSet = true;
             }
             VkBuffer& getVertexBuffer() {
                 return this->vertexBuffer;
             }
-            void destroyVertexBuffer(VkDevice device) {
-                vkFreeMemory(device, this->vertexBufferMemory, nullptr);
-                vkDestroyBuffer(device, this->vertexBuffer, nullptr);
+            void destroyVertexBuffer(VkDevice& device) {
+                if (this->vertexBufferSet == true) {
+                    vkFreeMemory(device, this->vertexBufferMemory, nullptr);
+                    vkDestroyBuffer(device, this->vertexBuffer, nullptr);
+                    this->vertexBufferSet = false;
+                }
+                cleanStagingBuffer(device);
+            }
+            void cleanStagingBuffer(VkDevice& device) {
+                if (this->stagingBufferSet == true) {
+                    vkFreeMemory(device, this->stagingBufferMemory, nullptr);
+                    vkDestroyBuffer(device, this->stagingBuffer, nullptr);
+                    this->stagingBufferSet = false;
+                }
+            }
+            void setVertexBufferMemory(VkDeviceMemory& memory) {
+                this->vertexBufferMemory = memory;
+                this->vertexBufferSet = true;
+            }
+            void setDevice(VkDevice &device) {
+                this->device = device;
                 
             }
-            void setVertexBufferMemory(VkDeviceMemory memory) {
-                this->vertexBufferMemory = memory;
+            void setStagingBufferMemory(VkDeviceMemory& mem) {
+                this->stagingBufferMemory = mem;
+                this->stagingBufferSet = true;
+            }
+            void setStagingBuffer(VkBuffer& buffer) {
+                this->stagingBuffer = buffer;
+                this->stagingBufferSet = true;
+            }
+            ~Scene() {
+                destroyVertexBuffer(this->device);
             }
         private:
             std::vector<Vertex> verts = {
@@ -214,8 +241,11 @@ namespace SFT {
             };
             //todo: update this and make it so that we only need an update when changes are made here
             bool updateGPUBuffer = false;
-            VkBuffer vertexBuffer;
-            VkDeviceMemory vertexBufferMemory;
+            bool vertexBufferSet = false;
+            bool stagingBufferSet = false;
+            VkBuffer vertexBuffer, stagingBuffer;
+            VkDeviceMemory vertexBufferMemory, stagingBufferMemory;
+            VkDevice device;
         };
     }
     namespace Input {
@@ -756,9 +786,9 @@ namespace SFT {
         int getMonitorID(vec2 pos) {
             int id = 0;
             for (size_t i = 0; i < monitors.size(); ++i) {
-                vec2 pos = vec2(pos.x, pos.y);
+                vec2 pos2{ pos.x, pos.y };
                 MonitorDescriptor monitor = monitors[i];
-                if (monitor.isPointInMonitor(pos)) {
+                if (monitor.isPointInMonitor(pos2)) {
                     id = i;
                     break;
                 }
@@ -782,7 +812,6 @@ namespace SFT {
         }
         void setFullscreen(bool tf, int monitor = NULL) {
             if (fullscreen == tf || (isWindowFullscren() == tf)) {
-                std::cout << "catch 1 triggered" << std::endl;
                 return;
             }
             fullscreen = tf;
@@ -1084,47 +1113,89 @@ namespace SFT {
             createCommandBuffers();
             createSyncObjects();
         }
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+            VkCommandBufferAllocateInfo allocInfo{};
+            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            allocInfo.commandPool = commandPool;
+            allocInfo.commandBufferCount = 1;
 
-        void createVertexBuffer() {
+            VkCommandBuffer commandBuffer;
+            vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+            VkCommandBufferBeginInfo beginInfo{};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+            vkBeginCommandBuffer(commandBuffer, &beginInfo);
+            VkBufferCopy copyRegion{};
+            copyRegion.srcOffset = 0; // Optional
+            copyRegion.dstOffset = 0; // Optional
+            copyRegion.size = size;
+            vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+            vkEndCommandBuffer(commandBuffer);
+
+            VkSubmitInfo submitInfo{};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.commandBufferCount = 1;
+            submitInfo.pCommandBuffers = &commandBuffer;
+
+            vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+            vkQueueWaitIdle(graphicsQueue);
+            vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+        }
+        void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) {
             VkBufferCreateInfo bufferInfo{};
             bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            std::vector<Scene::Vertex> vertices = scene.getVerts();
-            bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-            bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+            bufferInfo.size = size;
+            bufferInfo.usage = usage;
             bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            VkBuffer& buffer = scene.getVertexBuffer();
+
             if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
-                throw std::runtime_error("Failed to create vertex buffer!");
+                throw std::runtime_error("failed to create buffer!");
             }
-            scene.setVertexBuffer(buffer); //this is just in case to make sure the scene has the correct buffer
-            VkPhysicalDeviceMemoryProperties memProperties;
-            vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
             VkMemoryRequirements memRequirements;
-            vkGetBufferMemoryRequirements(device, scene.getVertexBuffer(), &memRequirements);
-            VkDeviceMemory vertexBufferMemory;
+            vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+
             VkMemoryAllocateInfo allocInfo{};
             allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
             allocInfo.allocationSize = memRequirements.size;
-            allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-            if (vkAllocateMemory(device, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
-                throw std::runtime_error("failed to allocate vertex buffer memory!");
+            allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+            if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+                throw std::runtime_error("failed to allocate buffer memory!");
             }
-            else {
-                //success
-                scene.setVertexBufferMemory(vertexBufferMemory);
-                vkBindBufferMemory(device, buffer, vertexBufferMemory, 0);
-                void* data;
-                vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-                memcpy(data, vertices.data(), (size_t)bufferInfo.size);
-                vkUnmapMemory(device, vertexBufferMemory);
-            }
+
+            vkBindBufferMemory(device, buffer, bufferMemory, 0);
+        }
+        void createVertexBuffer() {
+            auto vertices = scene.getVerts();
+            VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+
+            VkBuffer stagingBuffer;
+            VkDeviceMemory stagingBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+            void* data;
+            vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+            memcpy(data, vertices.data(), (size_t)bufferSize);
+            vkUnmapMemory(device, stagingBufferMemory);
+            VkBuffer vertexBuffer;
+            VkDeviceMemory vertexBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+
+            copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+            vkDestroyBuffer(device, stagingBuffer, nullptr);
+            vkFreeMemory(device, stagingBufferMemory, nullptr);
+            scene.setVertexBuffer(vertexBuffer);
+            scene.setVertexBufferMemory(vertexBufferMemory);
         }
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
             VkPhysicalDeviceMemoryProperties memProperties;
             vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-            VkMemoryRequirements memRequirements;
-            vkGetBufferMemoryRequirements(device, scene.getVertexBuffer(), &memRequirements);
+
             for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
                 if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
                     return i;
@@ -1133,6 +1204,7 @@ namespace SFT {
 
             throw std::runtime_error("failed to find suitable memory type!");
         }
+
 
         void initVulkanRaytraced() {
             //default extensions logic
@@ -1264,12 +1336,12 @@ namespace SFT {
 
         void createInstance(renderTypes type = renderTypes::Rasterized, std::vector<const char*> instanceExts = RequiredExtensions::InstanceExtensions::standard) {
             std::vector<const char*> layers;
-            if (enableValidationLayers && !checkValidationLayerSupport()) {
-                throw std::runtime_error("validation layers requested, but not available!");
-                for (auto layer : validationLayers) {
-                    layers.push_back(layer);
-                }
-            }
+            //if (enableValidationLayers && !checkValidationLayerSupport()) {
+            //    throw std::runtime_error("validation layers requested, but not available!");
+            //    for (auto layer : validationLayers) {
+            //        layers.push_back(layer);
+            //    }
+            //}
             VkApplicationInfo appInfo{};
             appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
             appInfo.pApplicationName = "SturdyEngine Application";
@@ -1611,7 +1683,7 @@ namespace SFT {
         }
 
         void createGraphicsPipeline() {
-            auto vertShaderCode = readFile("shaders/vert.spv");
+            auto vertShaderCode = readFile("shaders/vertex.spv");
             auto fragShaderCode = readFile("shaders/frag.spv");
 
             VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
