@@ -1407,12 +1407,16 @@ namespace SFT {
 
         void createInstance(renderTypes type = renderTypes::Rasterized, std::vector<const char*> instanceExts = RequiredExtensions::InstanceExtensions::standard) {
             std::vector<const char*> layers;
-            //if (enableValidationLayers && !checkValidationLayerSupport()) {
-            //    throw std::runtime_error("validation layers requested, but not available!");
-            //    for (auto layer : validationLayers) {
-            //        layers.push_back(layer);
-            //    }
-            //}
+            if (enableValidationLayers == true) {
+                if (checkValidationLayerSupport() == true) {
+                    for (auto layer : validationLayers) {
+                        layers.push_back(layer);
+                    }
+                }
+                else {
+                    throw std::runtime_error("validation layers requested, but not available!");
+                }
+            }
             VkApplicationInfo appInfo{};
             appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
             appInfo.pApplicationName = "SturdyEngine Application";
