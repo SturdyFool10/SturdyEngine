@@ -1,5 +1,5 @@
 #define GLFW_INCLUDE_VULKAN
-
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -18,7 +18,6 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <OpenXR/openxr.h> //TODO: actually use this
 #include <glm/glm.hpp>
-#include <GLFW/glfw3.h>
 constexpr auto procInfoMode = 1;
 /*
 TODO list:
@@ -99,7 +98,7 @@ namespace SFT {
             //NOTE: the perspective camera's far poroperty will be null if it is set to be infinite, for most 3D programs this is your go to camera type
             class PerspectiveCamera3D : Camera3D {
             public:
-                
+
                 double fov, aspect, near, far;
                 void setProjectionParameters(double fov = 45.0, double aspect = 16.0 / 9.0, double near = 0.000000002, double far = 1000000.0) {
                     this->setProjectionMatrix(glm::perspective(glm::radians(fov), aspect, near, far));
@@ -175,6 +174,11 @@ namespace SFT {
         private:
             glm::mat4x4 transformationMatrix;
         };
+        struct Mesh {
+        public:
+            std::vector<Vertex> verticies;
+            std::vector<int> indicies;
+        };
         class Scene {
         public:
             std::vector<Vertex> getVerts() {
@@ -199,52 +203,91 @@ namespace SFT {
             VkBuffer& getVertexBuffer() {
                 return this->vertexBuffer;
             }
+            VkBuffer& getIndexBuffer() {
+                return this->indexBuffer;
+            }
             void destroyVertexBuffer(VkDevice& device) {
                 if (this->vertexBufferSet == true) {
+                    vkDestroyBuffer(device, this->indexBuffer, nullptr);
+                    vkFreeMemory(device, this->indexBufferMemory, nullptr);
+
                     vkFreeMemory(device, this->vertexBufferMemory, nullptr);
                     vkDestroyBuffer(device, this->vertexBuffer, nullptr);
                     this->vertexBufferSet = false;
-                }
-                cleanStagingBuffer(device);
-            }
-            void cleanStagingBuffer(VkDevice& device) {
-                if (this->stagingBufferSet == true) {
-                    vkFreeMemory(device, this->stagingBufferMemory, nullptr);
-                    vkDestroyBuffer(device, this->stagingBuffer, nullptr);
-                    this->stagingBufferSet = false;
                 }
             }
             void setVertexBufferMemory(VkDeviceMemory& memory) {
                 this->vertexBufferMemory = memory;
                 this->vertexBufferSet = true;
             }
-            void setDevice(VkDevice &device) {
+            void setDevice(VkDevice& device) {
                 this->device = device;
-                
-            }
-            void setStagingBufferMemory(VkDeviceMemory& mem) {
-                this->stagingBufferMemory = mem;
-                this->stagingBufferSet = true;
-            }
-            void setStagingBuffer(VkBuffer& buffer) {
-                this->stagingBuffer = buffer;
-                this->stagingBufferSet = true;
+
             }
             ~Scene() {
                 destroyVertexBuffer(this->device);
             }
+            void addMesh(Mesh& m) {
+                this->meshes.push_back(m); //you might want to make sure this object has lifetime, since the engine relies on it
+            }
+            void generateLists() {
+                this->verts.clear();
+                this->indicies.clear();
+                uint32_t totalVerts = 0;
+                uint32_t totalInd = 0;
+                for (auto i : meshes) {
+                    totalVerts += i.verticies.size();
+                    totalInd += i.indicies.size();
+                }
+                uint32_t totalDone[2] = { 0, 0 };
+                this->verts.resize(totalVerts);
+                this->indicies.resize(totalInd);
+                for (auto i : meshes) {
+                    int indOffset = totalDone[1];
+                    for (auto j : i.verticies) {
+                        this->verts[totalDone[0]] = j;
+                        totalDone[0] += 1;
+                    }
+                    for (auto j : i.indicies) {
+                        uint32_t newInd = j + indOffset;
+                        this->indicies[totalDone[1]] = newInd;
+                        totalDone[1] += 1;
+                    }
+
+                }
+            }
+
+            std::vector<uint32_t> getIndicies() {
+                return this->indicies;
+            }
+            void setIndexBuffer(VkBuffer& buffer) {
+                this->indexBuffer = buffer;
+            }
+            void setIndexBufferMemory(VkDeviceMemory& mem) {
+                this->indexBufferMemory = mem;
+            }
         private:
-            std::vector<Vertex> verts = {
-                {{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-                {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-                {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
-            };
+            std::vector<Mesh> meshes = { {
+                        {
+                            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+                        },
+                        {
+                            0, 1, 2, 2, 3, 0
+                        }
+
+            } };
+            std::vector<Vertex> verts;
+            std::vector<uint32_t> indicies;
             //todo: update this and make it so that we only need an update when changes are made here
             bool updateGPUBuffer = false;
             bool vertexBufferSet = false;
-            bool stagingBufferSet = false;
-            VkBuffer vertexBuffer, stagingBuffer;
-            VkDeviceMemory vertexBufferMemory, stagingBufferMemory;
+            VkBuffer vertexBuffer;
+            VkDeviceMemory vertexBufferMemory;
+            VkBuffer indexBuffer;
+            VkDeviceMemory indexBufferMemory;
             VkDevice device;
         };
     }
@@ -518,7 +561,7 @@ namespace SFT {
             VideoModeOrganizer toRet = NULL;
             for (auto or : vidOrganizers) {
                 if (resolutionWidth == or.width && (resolutionHeight == or.height)) {
-                    toRet = or;
+                    toRet = or ;
                 }
             }
             return toRet;
@@ -549,7 +592,7 @@ namespace SFT {
                     organizer = VideoModeOrganizer(mode.width, mode.height);
                     vidOrganizers.push_back(organizer);
                 }
-                
+
                 ColorDepthDescriptor d = ColorDepthDescriptor(mode.redBits, mode.greenBits, mode.blueBits);
                 if (organizer.hasColorDepth(d) == false) {
                     organizer.addColorDepthMode(d);
@@ -961,7 +1004,6 @@ namespace SFT {
         //custom engine code
         std::vector<const char*> requiredDeviceExtensions;
         std::vector<const char*> requiredInstanceExtensions;
-
         bool windowShouldRequestFocus = false;
         std::vector<MonitorDescriptor> monitors = {};
 
@@ -1110,9 +1152,37 @@ namespace SFT {
             createFramebuffers();
             createCommandPool();
             createVertexBuffer();
+            createIndexBuffer();
             createCommandBuffers();
             createSyncObjects();
         }
+
+        void createIndexBuffer() {
+            auto indices = this->scene.getIndicies();
+            VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+            VkBuffer stagingBuffer;
+            VkDeviceMemory stagingBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+            void* data;
+            vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+            memcpy(data, indices.data(), (size_t)bufferSize);
+            vkUnmapMemory(device, stagingBufferMemory);
+
+
+            VkBuffer indexBuffer;
+            VkDeviceMemory indexBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
+
+            copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+            vkDestroyBuffer(device, stagingBuffer, nullptr);
+            vkFreeMemory(device, stagingBufferMemory, nullptr);
+            this->scene.setIndexBuffer(indexBuffer);
+            this->scene.setIndexBufferMemory(indexBufferMemory);
+        }
+
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
             VkCommandBufferAllocateInfo allocInfo{};
             allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -1169,8 +1239,9 @@ namespace SFT {
             vkBindBufferMemory(device, buffer, bufferMemory, 0);
         }
         void createVertexBuffer() {
+            scene.generateLists();
             auto vertices = scene.getVerts();
-            VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+            VkDeviceSize bufferSize = sizeof(Scene::Vertex) * vertices.size();
 
             VkBuffer stagingBuffer;
             VkDeviceMemory stagingBufferMemory;
@@ -1376,8 +1447,8 @@ namespace SFT {
             for (auto ext : additionalExtensions) {
                 extensions.push_back(ext);
             } // add non-duplicate extensions to instance extension list
-            
-            
+
+
             for (auto ext : extensions) {
                 std::cout << "Instance Extension: " << ext << " Enabled!" << std::endl;
             }
@@ -1714,6 +1785,7 @@ namespace SFT {
             vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
             vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
             vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+
             VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
             inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
             inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -1849,6 +1921,7 @@ namespace SFT {
             }
 
             for (size_t i = 0; i < commandBuffers.size(); i++) {
+                std::cout << "attempting indexed draw on cmd buffer id: " << i << "." << std::endl;
                 VkCommandBufferBeginInfo beginInfo{};
                 beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -1863,25 +1936,25 @@ namespace SFT {
                 renderPassInfo.renderArea.offset = { 0, 0 };
                 renderPassInfo.renderArea.extent = swapChainExtent;
 
-                VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+                VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
                 renderPassInfo.clearValueCount = 1;
                 renderPassInfo.pClearValues = &clearColor;
+                auto buffer = commandBuffers[i];
+                vkCmdBeginRenderPass(buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-                vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-                vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-                VkBuffer vertexBuffers[] = { scene.getVertexBuffer() };
+                vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+                VkBuffer& vertBuffer = scene.getVertexBuffer();
+                VkBuffer vertexBuffers[] = { vertBuffer };
                 VkDeviceSize offsets[] = { 0 };
+                scene.generateLists();
+                auto indices = scene.getIndicies();
                 vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-                vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(scene.getVerts().size()), 1, 0, 0);
+                vkCmdBindIndexBuffer(commandBuffers[i], scene.getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+                vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+                vkCmdEndRenderPass(buffer);
 
-                vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-
-                vkCmdEndRenderPass(commandBuffers[i]);
-
-                if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+                if (vkEndCommandBuffer(buffer) != VK_SUCCESS) {
                     throw std::runtime_error("failed to record command buffer!");
                 }
             }
@@ -1932,7 +2005,7 @@ namespace SFT {
             submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
             VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
-            VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+            VkPipelineStageFlags waitStages[] = { 0x2984473279 };
             submitInfo.waitSemaphoreCount = 1;
             submitInfo.pWaitSemaphores = waitSemaphores;
             submitInfo.pWaitDstStageMask = waitStages;
@@ -2181,7 +2254,9 @@ namespace SFT {
         }
 
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-            std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+            if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+                std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+            }
 
             return VK_FALSE;
         }
