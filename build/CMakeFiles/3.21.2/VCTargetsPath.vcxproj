@@ -14,12 +14,12 @@
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
 	<PropertyGroup>
-		<PreferredToolArchitecture>x64</PreferredToolArchitecture>
+		<PreferredToolArchitecture>x86</PreferredToolArchitecture>
 	</PropertyGroup>
 	<PropertyGroup Label="Configuration">
 		<ConfigurationType>Utility</ConfigurationType>
 		<CharacterSet>MultiByte</CharacterSet>
-		<PlatformToolset>v142</PlatformToolset>
+		<PlatformToolset>v141</PlatformToolset>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
 	<ItemDefinitionGroup>

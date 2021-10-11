@@ -22,31 +22,31 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{430FD06B-9B67-36A2-9F81-7246335898D9}</ProjectGuid>
+    <ProjectGuid>{6347D1C1-F933-3CEB-89A1-5B6277144212}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
     <Platform>x64</Platform>
-    <ProjectName>SturdyEngine</ProjectName>
+    <ProjectName>SturdyEngineLib</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
@@ -60,29 +60,21 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Evan\source\repos\sturdyengine\build\Debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngine.dir\Debug\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngineLib.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\Evan\source\repos\sturdyengine\build\Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngine.dir\Release\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngineLib.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\Evan\source\repos\sturdyengine\build\MinSizeRel\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngine.dir\MinSizeRel\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngineLib.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.lib</TargetExt>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\Evan\source\repos\sturdyengine\build\RelWithDebInfo\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngine.dir\RelWithDebInfo\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngine</TargetName>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
-    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngineLib.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">SturdyEngineLib</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -114,19 +106,9 @@
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>Debug\SturdyEngineLib.lib;includelib/dxcompiler.lib;includelib/GenericCodeGen.lib;includelib/glfw3.lib;includelib/glfw3dll.lib;includelib/glfw3_mt.lib;includelib/glslang-default-resource-limits.lib;includelib/glslang.lib;includelib/HLSL.lib;includelib/MachineIndependent.lib;includelib/OGLCompiler.lib;includelib/OSDependent.lib;includelib/shaderc.lib;includelib/shaderc_shared.lib;includelib/shaderc_util.lib;includelib/spirv-cross-c-shared.lib;includelib/spirv-cross-c.lib;includelib/spirv-cross-core.lib;includelib/spirv-cross-cpp.lib;includelib/spirv-cross-glsl.lib;includelib/spirv-cross-hlsl.lib;includelib/spirv-cross-msl.lib;includelib/spirv-cross-reflect.lib;includelib/spirv-cross-util.lib;includelib/SPIRV-Tools-link.lib;includelib/SPIRV-Tools-lint.lib;includelib/SPIRV-Tools-opt.lib;includelib/SPIRV-Tools-reduce.lib;includelib/SPIRV-Tools-shared.lib;includelib/SPIRV-Tools.lib;includelib/SPIRV.lib;includelib/SPVRemapper.lib;includelib/VkLayer_utils.lib;includelib/vulkan-1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/Evan/source/repos/sturdyengine/build/Debug/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/Evan/source/repos/sturdyengine/build/Debug/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -158,19 +140,9 @@
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>Release\SturdyEngineLib.lib;includelib/dxcompiler.lib;includelib/GenericCodeGen.lib;includelib/glfw3.lib;includelib/glfw3dll.lib;includelib/glfw3_mt.lib;includelib/glslang-default-resource-limits.lib;includelib/glslang.lib;includelib/HLSL.lib;includelib/MachineIndependent.lib;includelib/OGLCompiler.lib;includelib/OSDependent.lib;includelib/shaderc.lib;includelib/shaderc_shared.lib;includelib/shaderc_util.lib;includelib/spirv-cross-c-shared.lib;includelib/spirv-cross-c.lib;includelib/spirv-cross-core.lib;includelib/spirv-cross-cpp.lib;includelib/spirv-cross-glsl.lib;includelib/spirv-cross-hlsl.lib;includelib/spirv-cross-msl.lib;includelib/spirv-cross-reflect.lib;includelib/spirv-cross-util.lib;includelib/SPIRV-Tools-link.lib;includelib/SPIRV-Tools-lint.lib;includelib/SPIRV-Tools-opt.lib;includelib/SPIRV-Tools-reduce.lib;includelib/SPIRV-Tools-shared.lib;includelib/SPIRV-Tools.lib;includelib/SPIRV.lib;includelib/SPVRemapper.lib;includelib/VkLayer_utils.lib;includelib/vulkan-1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/Evan/source/repos/sturdyengine/build/Release/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/Evan/source/repos/sturdyengine/build/Release/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
@@ -202,19 +174,9 @@
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>MinSizeRel\SturdyEngineLib.lib;includelib/dxcompiler.lib;includelib/GenericCodeGen.lib;includelib/glfw3.lib;includelib/glfw3dll.lib;includelib/glfw3_mt.lib;includelib/glslang-default-resource-limits.lib;includelib/glslang.lib;includelib/HLSL.lib;includelib/MachineIndependent.lib;includelib/OGLCompiler.lib;includelib/OSDependent.lib;includelib/shaderc.lib;includelib/shaderc_shared.lib;includelib/shaderc_util.lib;includelib/spirv-cross-c-shared.lib;includelib/spirv-cross-c.lib;includelib/spirv-cross-core.lib;includelib/spirv-cross-cpp.lib;includelib/spirv-cross-glsl.lib;includelib/spirv-cross-hlsl.lib;includelib/spirv-cross-msl.lib;includelib/spirv-cross-reflect.lib;includelib/spirv-cross-util.lib;includelib/SPIRV-Tools-link.lib;includelib/SPIRV-Tools-lint.lib;includelib/SPIRV-Tools-opt.lib;includelib/SPIRV-Tools-reduce.lib;includelib/SPIRV-Tools-shared.lib;includelib/SPIRV-Tools.lib;includelib/SPIRV.lib;includelib/SPVRemapper.lib;includelib/VkLayer_utils.lib;includelib/vulkan-1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/Evan/source/repos/sturdyengine/build/MinSizeRel/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/Evan/source/repos/sturdyengine/build/MinSizeRel/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
@@ -245,19 +207,9 @@
       <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
-    <Link>
-      <AdditionalDependencies>RelWithDebInfo\SturdyEngineLib.lib;includelib/dxcompiler.lib;includelib/GenericCodeGen.lib;includelib/glfw3.lib;includelib/glfw3dll.lib;includelib/glfw3_mt.lib;includelib/glslang-default-resource-limits.lib;includelib/glslang.lib;includelib/HLSL.lib;includelib/MachineIndependent.lib;includelib/OGLCompiler.lib;includelib/OSDependent.lib;includelib/shaderc.lib;includelib/shaderc_shared.lib;includelib/shaderc_util.lib;includelib/spirv-cross-c-shared.lib;includelib/spirv-cross-c.lib;includelib/spirv-cross-core.lib;includelib/spirv-cross-cpp.lib;includelib/spirv-cross-glsl.lib;includelib/spirv-cross-hlsl.lib;includelib/spirv-cross-msl.lib;includelib/spirv-cross-reflect.lib;includelib/spirv-cross-util.lib;includelib/SPIRV-Tools-link.lib;includelib/SPIRV-Tools-lint.lib;includelib/SPIRV-Tools-opt.lib;includelib/SPIRV-Tools-reduce.lib;includelib/SPIRV-Tools-shared.lib;includelib/SPIRV-Tools.lib;includelib/SPIRV.lib;includelib/SPVRemapper.lib;includelib/VkLayer_utils.lib;includelib/vulkan-1.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <Lib>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/Evan/source/repos/sturdyengine/build/RelWithDebInfo/SturdyEngine.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/Evan/source/repos/sturdyengine/build/RelWithDebInfo/SturdyEngine.pdb</ProgramDataBaseFile>
-      <SubSystem>Console</SubSystem>
-    </Link>
-    <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
-    </ProjectReference>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\Evan\source\repos\sturdyengine\CMakeLists.txt">
@@ -316,7 +268,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\Evan\source\repos\sturdyengine\Main.cpp" />
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\SturdyEngine.h" />
+    <ClCompile Include="C:\Users\Evan\source\repos\sturdyengine\SturdyEngine.cpp" />
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\cpuinfo\cpuinfo.h" />
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\cpuinfo\cpuinfox86.h" />
+    <ClInclude Include="C:\Users\Evan\source\repos\sturdyengine\cpuinfo\cpuinfoARM.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\Evan\source\repos\sturdyengine\build\ZERO_CHECK.vcxproj">
@@ -324,10 +280,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </ProjectReference>
-    <ProjectReference Include="C:\Users\Evan\source\repos\sturdyengine\build\SturdyEngineLib.vcxproj">
-      <Project>{6347D1C1-F933-3CEB-89A1-5B6277144212}</Project>
-      <Name>SturdyEngineLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

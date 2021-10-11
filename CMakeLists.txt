@@ -9,13 +9,10 @@ project(${project_name})
 set(HAVE_LIBC TRUE)
 set(src
     Main.cpp
-    SturdyEngine.h
-    cpuinfo/cpuinfo.h
-    cpuinfo/cpuinfox86.h
-    cpuinfo/cpuinfoARM.h
 )
 set(LIBSRC
 	SturdyEngine.h
+	SturdyEngine.cpp
 	cpuinfo/cpuinfo.h
 	cpuinfo/cpuinfox86.h
  	cpuinfo/cpuinfoARM.h
@@ -30,46 +27,44 @@ set(includes
 	Libraries/Vulkan/Include
 )
 set(libs  
-includelib/dxcompiler  
-includelib/GenericCodeGen  
-includelib/glfw3  
-includelib/glfw3dll  
-includelib/glfw3_mt  
-includelib/glslang-default-resource-limits  
-includelib/glslang  
-includelib/HLSL  
-includelib/MachineIndependent  
-includelib/OGLCompiler  
-includelib/OSDependent  
-includelib/shaderc    
-includelib/shaderc_shared  
-includelib/shaderc_util  
-includelib/spirv-cross-c-shared  
-includelib/spirv-cross-c  
-includelib/spirv-cross-core  
-includelib/spirv-cross-cpp  
-includelib/spirv-cross-glsl  
-includelib/spirv-cross-hlsl  
-includelib/spirv-cross-msl  
-includelib/spirv-cross-reflect  
-includelib/spirv-cross-util  
-includelib/SPIRV-Tools-link  
-includelib/SPIRV-Tools-lint  
-includelib/SPIRV-Tools-opt  
-includelib/SPIRV-Tools-reduce  
-includelib/SPIRV-Tools-shared  
-includelib/SPIRV-Tools  
-includelib/SPIRV  
-includelib/SPVRemapper  
-includelib/VkLayer_utils  
-includelib/vulkan-1  
-
+	includelib/dxcompiler  
+	includelib/GenericCodeGen  
+	includelib/glfw3  
+	includelib/glfw3dll  
+	includelib/glfw3_mt  
+	includelib/glslang-default-resource-limits  
+	includelib/glslang  
+	includelib/HLSL  
+	includelib/MachineIndependent  
+	includelib/OGLCompiler  
+	includelib/OSDependent  
+	includelib/shaderc    
+	includelib/shaderc_shared  
+	includelib/shaderc_util  
+	includelib/spirv-cross-c-shared  
+	includelib/spirv-cross-c  
+	includelib/spirv-cross-core  
+	includelib/spirv-cross-cpp  
+	includelib/spirv-cross-glsl  
+	includelib/spirv-cross-hlsl  
+	includelib/spirv-cross-msl  
+	includelib/spirv-cross-reflect  
+	includelib/spirv-cross-util  
+	includelib/SPIRV-Tools-link  
+	includelib/SPIRV-Tools-lint  
+	includelib/SPIRV-Tools-opt  
+	includelib/SPIRV-Tools-reduce  
+	includelib/SPIRV-Tools-shared  
+	includelib/SPIRV-Tools  
+	includelib/SPIRV  
+	includelib/SPVRemapper  
+	includelib/VkLayer_utils  
+	includelib/vulkan-1  
 )
-set(outputShaders
-
-)
+add_library(${libName} ${LIBSRC})
 add_executable(${project_name} ${src} ${headers})
 include_directories(${includes})
+target_link_libraries(${project_name} PUBLIC ${libName})
 target_link_libraries(${project_name} PUBLIC ${libs})
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${project_name})
 file(COPY shaders/ DESTINATION shaders/)
